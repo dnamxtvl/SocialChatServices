@@ -56,7 +56,15 @@ export const VALIDATION = {
     CONVERSATION: {
         NAME: {
             MAX_LENGTH: 255
-        }
+        },
+        MAX_COUNT_USER: 1000,
+    },
+    USER: {
+        ID_LENGTH: 36
+    },
+    IMAGE_UPLOAD: {
+        MAX_SIZE: 1048576,
+        FILE_TYPE: /(image\/jpeg|image\/png|image\/jpg|image\/webp)$/
     }
 };
 

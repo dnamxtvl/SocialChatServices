@@ -20,8 +20,11 @@ export class Conversation {
   @Transform(({ value }) => value.toString())
   _id: string;
 
-  @Prop({ required: true, type: Types.Array, maxlength: VALIDATION.CONVERSATION.NAME.MAX_LENGTH})
+  @Prop({ required: true, maxlength: VALIDATION.CONVERSATION.NAME.MAX_LENGTH})
   name: string
+
+  @Prop({ required: false, default: null })
+  avatar: string
 
   @Prop({ required: true, enum: ConversationTypeEnum })
   type: number;
