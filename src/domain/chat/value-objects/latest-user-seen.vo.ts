@@ -1,5 +1,4 @@
 import { ValueObject } from './base';
-import { EmailVO } from './email.vo';
 
 export class LatestUserSeen extends ValueObject {
   constructor(

@@ -22,7 +22,7 @@ export const imageUploadOptions = (path: string) => ({
     if (allowedMimeTypes.includes(file.mimetype)) {
       callback(null, true);
     } else {
-      logger.error('File ' + file.originalname +  ' type not allowed');
+      logger.error('File ' + file.originalname +  ' type not allowed with ip ' + req.ip + ' route ' + req.route.path);
       callback(new BadRequestException('File type not allowed'), false);
     }
   },

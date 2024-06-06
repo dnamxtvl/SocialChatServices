@@ -2,6 +2,8 @@ import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Transform } from 'class-transformer';
+import mongoose from 'mongoose';
+import { Conversation } from './conversation.entity';
 
 export enum StatusMessageEnum {
   UNREAD = 0,
@@ -27,10 +29,11 @@ export type MessagesDocument = HydratedDocument<Message>;
 
 @Schema({
   collection: 'messages',
+  versionKey: false
 })
 export class Message {
   @Transform(({ value }) => value.toString())
-  _id: string;
+  _id: Types.ObjectId;
 
   @Prop({ required: false, type: Types.Array })
   content: string | string[];
@@ -43,32 +46,17 @@ export class Message {
   })
   status: number;
 
-  @Prop(
-    raw({
-      user_id: { type: String },
-      user_name: { type: String },
-      avatar: { type: String, required: false },
-      unit_room_name: { type: String },
-      organization_name: { type: String },
-    }),
-  )
-  user_send: Record<string, any>;
-
   @Prop()
-  conversation_id: Types.ObjectId;
+  user_send_id: string;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Conversation' })
+  conversation: Conversation;
 
   @Prop({ required: false })
   device_id: string
 
-  @Prop(raw({
-    user_id: { type: String },
-    avatar: { type: String, required: false },
-    seen_at: { type: Date },
-  }))
-  latest_user_seen: Record<string, any>;;
-
   @Prop({ required: false })
-  latest_user_seen_at: Date;
+  latest_user_seen_id: string;
 
   @Prop({ required: false })
   parent_id: Types.ObjectId | null;

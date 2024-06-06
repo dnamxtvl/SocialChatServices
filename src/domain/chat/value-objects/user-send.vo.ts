@@ -7,9 +7,6 @@ export class UserSendVO extends ValueObject {
     private readonly firstName: string,
     private readonly lastName: string,
     private readonly email: EmailVO,
-    private readonly organizationName: string,
-    private readonly avatar?: string,
-    private readonly unitRoomName?: string,
   ) {
     super();
   }
@@ -32,20 +29,5 @@ export class UserSendVO extends ValueObject {
   public getEmail(): EmailVO
   {
     return this.email
-  }
-
-  public getOrganizationName(): string
-  {
-    return this.organizationName
-  }
-
-  public getAvatar(): string | null
-  {
-    return this.avatar;
-  }
-
-  public getUnitNameRoom(): string | null
-  {
-    return this.unitRoomName;
   }
 }

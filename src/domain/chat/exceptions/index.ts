@@ -1,3 +1,5 @@
+import { HttpException } from "@nestjs/common";
+
 export const DomainErrorCode = {
   BAD_REQUEST: 'BAD_REQUEST',
   NOT_FOUND: 'NOT_FOUND',
@@ -15,23 +17,9 @@ export const DomainErrorDetailCode = {
 export type DomainErrorDetailCode =
   (typeof DomainErrorDetailCode)[keyof typeof DomainErrorDetailCode];
 
-interface DomainErrorParams {
-  info?: { [key: string]: unknown };
-  code: number;
-  message: string;
-}
-
-export class DomainError extends Error {
-  info?: { [key: string]: unknown };
-  code: number;
-  message: string;
-
-  constructor(params: DomainErrorParams) {
-    super();
-
-    this.code = params.code;
-    this.message = params.message;
-    this.info = params.info || null;
+export class DomainError extends HttpException {
+  constructor(message: string, code: number, detailCode: number) {
+    super({ message, detailCode }, code);
   }
 }
   

@@ -1,39 +1,35 @@
-import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Transform } from 'class-transformer';
 import mongoose from 'mongoose';
 import { Conversation } from './conversation.entity';
-
-import { TypeMessageEnum } from './message.entity';
+import { Message } from './message.entity';
 
 export type MessagesDocument = HydratedDocument<UserConversation>;
 
 @Schema({
-  collection: 'conversations',
+  collection: 'user_conversation',
+  versionKey: false
 })
 export class UserConversation {
   @Transform(({ value }) => value.toString())
-  _id: string;
+  _id: Types.ObjectId;
 
   @Prop({ required: true })
   user_id: string
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Message' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Conversation' })
   conversation: Conversation;
 
   @Prop({ type: Number })
   no_unread_message: number;
 
-  @Prop(raw({
-      message_id: Types.ObjectId,
-      user_send_id: String,
-      user_send_avatar: String,
-      type: TypeMessageEnum,
-      content: String,
-      created_at: Date
-  }))
-  latest_message: Record<string, any>;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Message' })
+  last_message: Message;
+
+  @Prop()
+  latest_active_at: Date;
 
   @Prop({ type: Boolean })
   disabled_notify: boolean;

@@ -18,13 +18,11 @@ export class EmailVO extends ValueObject {
       value.length <= VALIDATION.EMAIL.MIN_LENGTH ||
       !isValidEmail
     ) {
-      throw new DomainError({
-        code: HttpStatus.BAD_REQUEST,
-        message: 'Invalid email format',
-        info: {
-          detailCode: ExceptionCode.INVALID_EMAIL_FORMAT_VALUE_OBJECT,
-        },
-      });
+      throw new DomainError(
+        'Email không hợp lệ!',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+        ExceptionCode.INVALID_EMAIL_FORMAT_VALUE_OBJECT,
+      );
     }
   }
 

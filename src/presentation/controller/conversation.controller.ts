@@ -1,4 +1,6 @@
-import { Body, Controller, Get, Param, Post, UseInterceptors, UploadedFile, UseGuards, MaxFileSizeValidator, ParseFilePipe, FileTypeValidator } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseInterceptors, UploadedFile, UseGuards,
+  MaxFileSizeValidator, ParseFilePipe, FileTypeValidator, Res, 
+  Req} from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateConversationCommand } from 'src/application/command/create-conversation.command';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -8,36 +10,49 @@ import { CreateConversationDTO } from '../dtos/create-conversation.dto';
 import { logger } from 'src/logs/nest.log';
 import { VALIDATION } from 'src/const/validation';
 import { APPLICATION_CONST } from 'src/const/application';
+import { BaseController } from './base.controller';
+import { Response } from 'express';
+import { GetAuthUser } from '../decorator/auth.decorator';
+import { AuthUser } from 'src/@type/User';
 
 @Controller()
-export class ConversationController {
+export class ConversationController extends BaseController {
   constructor(
     private readonly commandBus: CommandBus
-  ) {}
+  ) {
+    super();
+  }
 
   @UseGuards(OrganiztionGuard)
   @Post('/conversation/create')
   @UseInterceptors(FileInterceptor('avatar', imageUploadOptions(APPLICATION_CONST.PATH_UPLOAD_FILE.CONVERSATION)))
-  async organiztionCreate(@UploadedFile(
-    new ParseFilePipe({
-      validators: [
-        new MaxFileSizeValidator({ maxSize: VALIDATION.IMAGE_UPLOAD.MAX_SIZE }),
-        new FileTypeValidator({ fileType: VALIDATION.IMAGE_UPLOAD.FILE_TYPE }),
-      ],
-    }),
-  ) avatar: Express.Multer.File, @Body () createConversationDTO: CreateConversationDTO) {
-    console.log(avatar);
+  async organiztionCreate(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: VALIDATION.IMAGE_UPLOAD.MAX_SIZE }),
+          new FileTypeValidator({ fileType: VALIDATION.IMAGE_UPLOAD.FILE_TYPE }),
+        ], fileIsRequired: false
+      }),
+    ) avatar: Express.Multer.File,
+    @Res() res: Response,
+    @GetAuthUser() user: AuthUser,
+    @Body () createConversationDTO: CreateConversationDTO) {
     try {
-      return await this.commandBus.execute(
+      await this.commandBus.execute(
         new CreateConversationCommand(
           createConversationDTO.name,
-          createConversationDTO.listUserId
+          createConversationDTO.listUserId,
+          user,
+          avatar?.path,
         )
       );
+
+      return this.responseWithSuccess(res, null);
     } catch (error) {
-      console.log(error);
       logger.error(error.stack);
+console.log(error.errorResponse.errmsg);
+      return this.responseWithError(res, error);
     }
-    
   }
 }

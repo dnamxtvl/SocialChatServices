@@ -2,7 +2,7 @@ import { Module, Provider } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserRepositoryProvider } from './provider';
+import { UserRepositoryProvider, MessageRepositoryProvider, ConversationRepositoryProvider, UserConversationRepositoryProvider } from './provider';
 import { MessageController } from './controller/message.controller';
 import { User } from 'src/infrastructure/entities/user.entity';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -17,9 +17,14 @@ import { ConversationController } from './controller/conversation.controller';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CreateConversationCommandHandle } from 'src/application/command-handle/create-conversation.command-handle';
 import { MulterModule } from '@nestjs/platform-express';
+import { UserConversation, UserConversationSchema } from 'src/infrastructure/entities/user-conversation.entity';
+import { Conversation, ConversationSchema } from 'src/infrastructure/entities/conversation.entity';
 
 const RepositoryProviders: Provider[] = [
   UserRepositoryProvider,
+  MessageRepositoryProvider,
+  ConversationRepositoryProvider,
+  UserConversationRepositoryProvider,
 ];
 
 export const CommandHandler = [CreateConversationCommandHandle]
@@ -72,9 +77,16 @@ export const CommandHandler = [CreateConversationCommandHandle]
       synchronize: false,
     }),
     MongooseModule.forRoot(process.env.DATABASE_CHAT_HOST),
-    MongooseModule.forFeature([{
-      name: Message.name, schema: MessageSchema
-    },
+    MongooseModule.forFeature([
+      {
+        name: Message.name, schema: MessageSchema,
+      },
+      {
+        name: UserConversation.name, schema: UserConversationSchema
+      },
+      {
+        name: Conversation.name, schema: ConversationSchema
+      }
   ])
   ],
   controllers: [MessageController, ConversationController],

@@ -49,6 +49,7 @@ export const VALIDATION = {
         MAX_LENGTH: 255
     },
     MESSAGE: {
+        ID_LENGTH: 24,
         CONTENT: {
             MAX_LENGTH: 20000
         }
@@ -58,6 +59,7 @@ export const VALIDATION = {
             MAX_LENGTH: 255
         },
         MAX_COUNT_USER: 1000,
+        ID_LENGTH: 24
     },
     USER: {
         ID_LENGTH: 36

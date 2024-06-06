@@ -12,15 +12,15 @@ import { LatestUserSeen } from '../../value-objects/latest-user-seen.vo';
 export class MessageModel extends BaseModel {
   constructor(
     private readonly type: TypeMessageEnum,
-    private readonly conversationId: Types.ObjectId,
+    private readonly conversationId: string,
     private readonly createdAt: Date,
     private readonly firstOfAvgTime: boolean,
+    private readonly userSendId: string,
     private readonly id?: string,
     private readonly content?: string | string[],
-    private readonly userSend?: UserSendVO,
-    private readonly deviceId?: string,
-    private readonly latestUserSeen?: LatestUserSeen,
+    private readonly latestUserSeenId?: string,
     private readonly parentId?: string,
+    private readonly deviceId?: string,
     private readonly ipSend?: string,
   ) {
     super();
@@ -39,11 +39,11 @@ export class MessageModel extends BaseModel {
     return this.type;
   }
 
-  public getUserSend(): UserSendVO {
-    return this.userSend;
+  public getUserSendId(): string {
+    return this.userSendId;
   }
 
-  public getConversationId(): Types.ObjectId {
+  public getConversationId(): string {
     return this.conversationId;
   }
 
@@ -55,8 +55,8 @@ export class MessageModel extends BaseModel {
     return this.deviceId;
   }
 
-  public getLatestUserSeen(): LatestUserSeen | null {
-    return this.latestUserSeen;
+  public getLatestUserSeen(): string | null {
+    return this.latestUserSeenId;
   }
 
   public getParentId(): string | null {
@@ -74,43 +74,35 @@ export class MessageModel extends BaseModel {
   private validateContent(content: string | string[] = ''): void {
     if (this.type === TypeMessageEnum.TEXT && typeof content === 'string') {
       if (content.length > VALIDATION.MESSAGE.CONTENT.MAX_LENGTH) {
-        throw new DomainError({
-          code: HttpStatus.UNPROCESSABLE_ENTITY,
-          message: 'Message quá dài!',
-          info: {
-            detailCode: ExceptionCode.MESSAGE_LENGTH_TO_BIG
-          },
-        })
+        throw new DomainError(
+          'Tin nhắn quá dài!',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+          ExceptionCode.MESSAGE_LENGTH_TO_BIG
+        )
       }
     } else if ((this.type === TypeMessageEnum.LINK || this.type === TypeMessageEnum.IMAGE || this.type === TypeMessageEnum.VIDEO || this.type === TypeMessageEnum.AUDIO) && typeof content === 'string') {
       if (!isURL(content)) {
-        throw new DomainError({
-          code: HttpStatus.UNPROCESSABLE_ENTITY,
-          message: 'Link không hợp lệ!',
-          info: {
-            detailCode: ExceptionCode.INVALID_LINK,
-          },
-        });
+        throw new DomainError(
+          'Link không hợp lệ!',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+          ExceptionCode.INVALID_LINK
+        );
       }
     } else if (this.type === TypeMessageEnum.FILES || this.type === TypeMessageEnum.IMAGES || this.type === TypeMessageEnum.VIDEOS) {
       if (!Array.isArray(content)) {
-        throw new DomainError({
-          code: HttpStatus.UNPROCESSABLE_ENTITY,
-          message: 'Message không hợp lệ!',
-          info: {
-            detailCode: ExceptionCode.INVALID_MESSAGE_IN_MODEL_DOMAIN
-          },
-        })
+        throw new DomainError(
+          'Tin nhắn không hợp lệ!',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+          ExceptionCode.INVALID_MESSAGE_IN_MODEL_DOMAIN
+        )
       }
       content.map((item) => {
         if (!isURL(item)) {
-          throw new DomainError({
-            code: HttpStatus.UNPROCESSABLE_ENTITY,
-            message: 'Link không hợp lệ!',
-            info: {
-              detailCode: ExceptionCode.INVALID_LINK,
-            },
-          });
+          throw new DomainError(
+            'Link không hợp lệ',
+            HttpStatus.UNPROCESSABLE_ENTITY,
+            ExceptionCode.INVALID_LINK
+          );
         }
       })
     }

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { IUserRepository } from 'src/domain/chat/repository/user.repository';
 import { UserModel } from 'src/domain/chat/models/user/user.model';
@@ -18,7 +18,21 @@ export class UserRepository extends Repository<User> implements IUserRepository 
       id: id
     });
 
-    return user ? new UserModel(
+    return user ? this.mappingUserEntityToModel(user) : null;
+  }
+
+  async findByManyIds(ids: string[]): Promise<UserModel[] | null> {
+    const users = await this.manager.getRepository(User).find({
+      where: {
+        id: In(ids)
+      }
+    })
+
+    return users.length > 0 ? users.map(user => this.mappingUserEntityToModel(user)) : null
+  }
+
+  private mappingUserEntityToModel(user: User): UserModel {
+    return new UserModel(
       user.id,
       user.first_name,
       user.last_name,
@@ -32,6 +46,6 @@ export class UserRepository extends Repository<User> implements IUserRepository 
       user.last_activity_at,
       user.status_active == UserStatusActiveEnum.ONLINE,
       user.created_at
-    ) : null
+    )
   }
 }

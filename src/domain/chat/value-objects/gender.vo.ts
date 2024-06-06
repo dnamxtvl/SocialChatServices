@@ -11,13 +11,11 @@ export class GenderVO extends ValueObject {
     if (
       input !== VALIDATION.GENDER.MALE && input !== VALIDATION.GENDER.FEMALE && input !== VALIDATION.GENDER.OTHER
     ) {
-      throw new DomainError({
-        code: HttpStatus.BAD_REQUEST,
-        message: 'Invalid email format',
-        info: {
-          detailCode: ExceptionCode.INVALID_GENDER_FORMAT_VALUE_OBJECT,
-        },
-      });
+      throw new DomainError(
+        'Giới tính không hợp lệ',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+        ExceptionCode.INVALID_GENDER_FORMAT_VALUE_OBJECT
+      );
     }
   }
 }

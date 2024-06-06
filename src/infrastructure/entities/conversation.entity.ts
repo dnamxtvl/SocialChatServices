@@ -5,32 +5,38 @@ import { Transform } from 'class-transformer';
 import { VALIDATION } from 'src/const/validation';
 import { Message } from './message.entity';
 import mongoose from 'mongoose';
-
-export enum ConversationTypeEnum {
-    SINGLE = 0,
-    GROUP = 1
-}
+import { TypeConversationEnum } from 'src/const/enums/conversation/type.enum.conversation';
 
 export type MessagesDocument = HydratedDocument<Conversation>;
 
 @Schema({
   collection: 'conversations',
+  versionKey: false
 })
 export class Conversation {
   @Transform(({ value }) => value.toString())
-  _id: string;
+  _id: Types.ObjectId;
 
   @Prop({ required: true, maxlength: VALIDATION.CONVERSATION.NAME.MAX_LENGTH})
   name: string
 
-  @Prop({ required: false, default: null })
-  avatar: string
+  @Prop()
+  avatar: string | null
 
-  @Prop({ required: true, enum: ConversationTypeEnum })
+  @Prop({ required: true, enum: TypeConversationEnum })
   type: number;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Message' })
   last_message: Message;
+
+  @Prop()
+  latest_active_at: Date;
+
+  @Prop()
+  created_by: string;
+
+  @Prop()
+  organization_id: number;
 
   @Prop({ default: Date.now })
   created_at: Date;
