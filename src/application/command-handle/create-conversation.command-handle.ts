@@ -68,9 +68,8 @@ export class CreateConversationCommandHandle implements ICommandHandler<CreateCo
 
     try {
       let newConversation = await this.conversationRepository.saveConversation(conversation, session);
-      console.log(newConversation);
       let firstMessage = new MessageModel(
-        TypeMessageEnum.NOTIFY,newConversation.getId(), now(), false, null, 'Nhóm mới!', null, null
+        TypeMessageEnum.NOTIFY, newConversation.getId(), now(), false, command.authUser.id, null, 'Nhóm mới!', null, null
       );
       let firstMessageConversation = await this.messageRepository.saveMessage(firstMessage, session);
       let conversations = listUserId.map((userId) => {
@@ -78,16 +77,12 @@ export class CreateConversationCommandHandle implements ICommandHandler<CreateCo
           userId, newConversation.getId(), firstMessageConversation.getId(), now(), 0, false, null, now(), now()
         );
       })
-
       await this.userConversationRepository.insertUserConversation(conversations, session);
+      session.commitTransaction();
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
-      console.log(1131);
       throw error;
-    } finally {
-      console.log(3637);
-      session.endSession();
     }
   }
 }

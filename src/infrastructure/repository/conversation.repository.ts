@@ -41,8 +41,6 @@ export class ConversationRepository implements IConversationRepository {
       latest_active_at: model.getLatestActivity(),
       last_message: model.getLatestMessageId(),
       avatar: model.getAvatar(),
-      created_at: model.getCreatedAt(),
-      updated_at: model.getUpdatedAt(),
     });
     const newConervsation = await conversation.save({ session });
 
@@ -56,11 +54,11 @@ export class ConversationRepository implements IConversationRepository {
       conversation.organization_id,
       conversation.type,
       conversation.latest_active_at,
-      conversation.last_message?._id.toString(),
+      conversation.last_message ? conversation.last_message._id.toString() : null,
       conversation._id.toString(),
       conversation.avatar,
-      conversation.created_at,
-      conversation.updated_at
+      conversation.createdAt,
+      conversation.updatedAt,
     );
   }
 }

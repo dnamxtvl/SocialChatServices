@@ -29,7 +29,8 @@ export type MessagesDocument = HydratedDocument<Message>;
 
 @Schema({
   collection: 'messages',
-  versionKey: false
+  versionKey: false,
+  timestamps: true,
 })
 export class Message {
   @Transform(({ value }) => value.toString())
@@ -71,13 +72,13 @@ export class Message {
   first_of_avg_time: boolean;
 
   @Prop({ default: Date.now })
-  created_at: Date;
+  createdAt: Date;
 
   @Prop({ default: Date.now })
-  updated_at: Date;
+  updatedAt: Date;
 
   @Prop({ default: null })
-  deleted_at: Date | null;
+  deletedAt: Date | null;
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);

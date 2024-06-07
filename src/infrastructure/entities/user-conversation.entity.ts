@@ -10,7 +10,8 @@ export type MessagesDocument = HydratedDocument<UserConversation>;
 
 @Schema({
   collection: 'user_conversation',
-  versionKey: false
+  versionKey: false,
+  timestamps: true,
 })
 export class UserConversation {
   @Transform(({ value }) => value.toString())
@@ -38,13 +39,13 @@ export class UserConversation {
   expired_disabled_notify_at: Date | null;
 
   @Prop({ default: Date.now })
-  created_at: Date;
+  createdAt: Date;
 
   @Prop({ default: Date.now })
-  updated_at: Date;
+  updatedAt: Date;
 
   @Prop({ default: null })
-  deleted_at: Date | null;
+  deletedAt: Date | null;
 }
 
 export const UserConversationSchema = SchemaFactory.createForClass(UserConversation);

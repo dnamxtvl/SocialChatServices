@@ -2,7 +2,7 @@ import { IConversationRepository } from "src/domain/chat/repository/conversation
 import { IMessageRepository } from "src/domain/chat/repository/message.repository";
 import { IUserConversationRepository } from "src/domain/chat/repository/user-conversation.repository";
 import { IUserRepository } from "src/domain/chat/repository/user.repository";
-import { UserConversation } from "src/infrastructure/entities/user-conversation.entity";
+import { UserConversationRepository } from "src/infrastructure/repository/user-conversation.repository";
 import { ConversationRepository } from "src/infrastructure/repository/conversation.repository";
 import { MessageRepository } from "src/infrastructure/repository/message.repository";
 import { UserRepository } from "src/infrastructure/repository/user.repository";
@@ -24,5 +24,5 @@ export const ConversationRepositoryProvider = {
 
 export const UserConversationRepositoryProvider = {
     provide: IUserConversationRepository,
-    useClass: UserConversation
+    useClass: UserConversationRepository
 }

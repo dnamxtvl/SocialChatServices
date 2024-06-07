@@ -39,7 +39,7 @@ export class MessageRepository implements IMessageRepository {
     return new MessageModel(
       message.type,
       message.conversation._id.toString(),
-      message.created_at,
+      message.createdAt,
       message.first_of_avg_time,
       message.user_send_id,
       message._id.toString(),

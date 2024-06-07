@@ -11,7 +11,8 @@ export type MessagesDocument = HydratedDocument<Conversation>;
 
 @Schema({
   collection: 'conversations',
-  versionKey: false
+  versionKey: false,
+  timestamps: true,
 })
 export class Conversation {
   @Transform(({ value }) => value.toString())
@@ -20,7 +21,7 @@ export class Conversation {
   @Prop({ required: true, maxlength: VALIDATION.CONVERSATION.NAME.MAX_LENGTH})
   name: string
 
-  @Prop()
+  @Prop({ default: null })
   avatar: string | null
 
   @Prop({ required: true, enum: TypeConversationEnum })
@@ -39,13 +40,13 @@ export class Conversation {
   organization_id: number;
 
   @Prop({ default: Date.now })
-  created_at: Date;
+  createdAt: Date;
 
   @Prop({ default: Date.now })
-  updated_at: Date;
+  updatedAt: Date;
 
   @Prop({ default: null })
-  deleted_at: Date | null;
+  deletedAt: Date | null;
 }
 
 export const ConversationSchema = SchemaFactory.createForClass(Conversation);

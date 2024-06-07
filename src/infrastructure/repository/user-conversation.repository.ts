@@ -79,8 +79,8 @@ export class UserConversationRepository implements IUserConversationRepository {
       userConversation.no_unread_message,
       userConversation.disabled_notify,
       userConversation.expired_disabled_notify_at,
-      userConversation.created_at,
-      userConversation.updated_at,
+      userConversation.createdAt,
+      userConversation.updatedAt,
       userConversation._id.toString()
     );
   }

@@ -51,7 +51,7 @@ export class ConversationController extends BaseController {
       return this.responseWithSuccess(res, null);
     } catch (error) {
       logger.error(error.stack);
-console.log(error.errorResponse.errmsg);
+
       return this.responseWithError(res, error);
     }
   }
