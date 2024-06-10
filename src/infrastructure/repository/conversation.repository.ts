@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { ClientSession, Model } from 'mongoose';
+import { ClientSession, Model, now } from 'mongoose';
 import { Conversation } from '../entities/conversation.entity';
 import { IConversationRepository } from 'src/domain/chat/repository/conversation.repository';
 import { ConversationModel } from 'src/domain/chat/models/conversation/conversation.model';
+import { APPLICATION_CONST } from 'src/const/application';
 
 
 @Injectable()
@@ -12,7 +13,7 @@ export class ConversationRepository implements IConversationRepository {
   
   async findById(id: string): Promise<ConversationModel | null> {
     const conversation = await this.conversation.findById({
-      id: id
+      _id: id
     }).exec();
 
     return conversation ? this.mappingConversationEntityToModel(conversation) : null;

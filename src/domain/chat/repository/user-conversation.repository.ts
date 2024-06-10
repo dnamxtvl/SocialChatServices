@@ -3,11 +3,31 @@ import { UserConversationModel } from '../models/conversation/user-conversation.
 import { ClientSession } from 'mongoose';
 
 export abstract class IUserConversationRepository extends BaseRepository {
-findByUserId: (userId: string) => Promise<UserConversationModel[] | null>;
+  findByUserId: (userId: string) => Promise<UserConversationModel[] | null>;
 
-  findByUserIdAndName: (userId: string, name: string) => Promise<UserConversationModel | null>;
+  findByUserIdAndName: (
+    userId: string,
+    name: string,
+  ) => Promise<UserConversationModel | null>;
 
-  saveUserConversation: (model: UserConversationModel) => Promise<UserConversationModel>;
+  findByConversationId: (conversationId: string) => Promise<UserConversationModel[] | []>;
 
-  insertUserConversation: (models: UserConversationModel[], session: ClientSession) => Promise<void>;
+  findByUserIdAndConversationId: (
+    userId: string,
+    conversationId: string,
+  ) => Promise<UserConversationModel | null>;
+
+  saveUserConversation: (
+    model: UserConversationModel,
+  ) => Promise<UserConversationModel>;
+
+  insertUserConversation: (
+    models: UserConversationModel[],
+    session: ClientSession,
+  ) => Promise<void>;
+
+  listUserConversationPaginate: (
+    userId: string,
+    page: number
+  ) => Promise<UserConversationModel[] | null>;
 }

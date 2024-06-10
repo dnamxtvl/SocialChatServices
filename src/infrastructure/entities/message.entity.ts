@@ -53,19 +53,19 @@ export class Message {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Conversation' })
   conversation: Conversation;
 
-  @Prop({ required: false })
+  @Prop({ default: null })
   device_id: string
 
-  @Prop({ required: false })
+  @Prop({ default: null })
   latest_user_seen_id: string;
 
-  @Prop({ required: false })
+  @Prop({ default: null })
   parent_id: Types.ObjectId | null;
 
-  @Prop({ required: false })
+  @Prop({ default: null })
   ip_send: string;
 
-  @Prop({ required: false })
+  @Prop({ default: null })
   device_os_id: number;
 
   @Prop({ default: false })

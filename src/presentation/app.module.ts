@@ -19,6 +19,9 @@ import { CreateConversationCommandHandle } from 'src/application/command-handle/
 import { MulterModule } from '@nestjs/platform-express';
 import { UserConversation, UserConversationSchema } from 'src/infrastructure/entities/user-conversation.entity';
 import { Conversation, ConversationSchema } from 'src/infrastructure/entities/conversation.entity';
+import { ListConversationByUserCommandHandle } from 'src/application/command-handle/list-conversaion-by-user.command-handle';
+import { SendMessageCommandHandle } from 'src/application/command-handle/send-message.command-handle';
+import { BullModule } from '@nestjs/bull';
 
 const RepositoryProviders: Provider[] = [
   UserRepositoryProvider,
@@ -27,10 +30,25 @@ const RepositoryProviders: Provider[] = [
   UserConversationRepositoryProvider,
 ];
 
-export const CommandHandler = [CreateConversationCommandHandle]
+export const CommandHandler = [
+  CreateConversationCommandHandle,
+  ListConversationByUserCommandHandle,
+  SendMessageCommandHandle
+];
 
 @Module({
   imports: [
+    BullModule.forRoot({
+      redis: {
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT as any,
+        password: process.env.REDIS_PASSWORD
+      },
+    }),
+    BullModule.registerQueue({
+      name: 'conversation-queue',
+      prefix: 'chat',
+    }),
     MulterModule.register({
       dest: './public/images',
     }),

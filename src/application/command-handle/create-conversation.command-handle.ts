@@ -15,6 +15,7 @@ import { now } from "mongoose";
 import { UserConversationModel } from "src/domain/chat/models/conversation/user-conversation.model";
 import { InjectConnection } from "@nestjs/mongoose";
 import { Connection } from "mongoose";
+import * as moment from 'moment-timezone';
 
 @CommandHandler(CreateConversationCommand)
 export class CreateConversationCommandHandle implements ICommandHandler<CreateConversationCommand> {
@@ -69,7 +70,7 @@ export class CreateConversationCommandHandle implements ICommandHandler<CreateCo
     try {
       let newConversation = await this.conversationRepository.saveConversation(conversation, session);
       let firstMessage = new MessageModel(
-        TypeMessageEnum.NOTIFY, newConversation.getId(), now(), false, command.authUser.id, null, 'Nhóm mới!', null, null
+        TypeMessageEnum.NOTIFY, newConversation.getId(), false, command.authUser.id, null, 'Nhóm mới!', null, null
       );
       let firstMessageConversation = await this.messageRepository.saveMessage(firstMessage, session);
       let conversations = listUserId.map((userId) => {

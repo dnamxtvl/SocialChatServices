@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post, UseInterceptors, UploadedFile, UseGuards,
   MaxFileSizeValidator, ParseFilePipe, FileTypeValidator, Res, 
-  Req} from '@nestjs/common';
+  Req, UsePipes, ValidationPipe,
+  Query} from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateConversationCommand } from 'src/application/command/create-conversation.command';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -14,6 +15,7 @@ import { BaseController } from './base.controller';
 import { Response } from 'express';
 import { GetAuthUser } from '../decorator/auth.decorator';
 import { AuthUser } from 'src/@type/User';
+import { ListConversationByUserCommand } from 'src/application/command/list-conversaion-by-user.command';
 
 @Controller()
 export class ConversationController extends BaseController {
@@ -24,7 +26,7 @@ export class ConversationController extends BaseController {
   }
 
   @UseGuards(OrganiztionGuard)
-  @Post('/conversation/create')
+  @Post('/user/conversation/create')
   @UseInterceptors(FileInterceptor('avatar', imageUploadOptions(APPLICATION_CONST.PATH_UPLOAD_FILE.CONVERSATION)))
   async organiztionCreate(
     @UploadedFile(
@@ -49,6 +51,22 @@ export class ConversationController extends BaseController {
       );
 
       return this.responseWithSuccess(res, null);
+    } catch (error) {
+      logger.error(error.stack);
+
+      return this.responseWithError(res, error);
+    }
+  }
+
+  @Get('/user/conversation/list/')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async getConversation(@Res() res: Response, @GetAuthUser() user: AuthUser, @Query('page') page?: number) {
+    try {
+      const listConversation = await this.commandBus.execute(
+        new ListConversationByUserCommand(user.id, page ?? APPLICATION_CONST.CONVERSATION.FIRST_PAGE)
+      )
+
+      return this.responseWithSuccess(res, listConversation);
     } catch (error) {
       logger.error(error.stack);
 

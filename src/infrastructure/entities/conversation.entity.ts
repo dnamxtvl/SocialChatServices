@@ -6,13 +6,13 @@ import { VALIDATION } from 'src/const/validation';
 import { Message } from './message.entity';
 import mongoose from 'mongoose';
 import { TypeConversationEnum } from 'src/const/enums/conversation/type.enum.conversation';
+import * as moment from 'moment-timezone';
 
 export type MessagesDocument = HydratedDocument<Conversation>;
 
 @Schema({
   collection: 'conversations',
   versionKey: false,
-  timestamps: true,
 })
 export class Conversation {
   @Transform(({ value }) => value.toString())
@@ -39,7 +39,7 @@ export class Conversation {
   @Prop()
   organization_id: number;
 
-  @Prop({ default: Date.now })
+  @Prop({ default: moment.tz(new Date(), 'Asia/Ho_Chi_Minh') })
   createdAt: Date;
 
   @Prop({ default: Date.now })

@@ -65,8 +65,18 @@ export const VALIDATION = {
         ID_LENGTH: 36
     },
     IMAGE_UPLOAD: {
-        MAX_SIZE: 1048576,
+        MAX_SIZE: 10 * 1024 * 1024,
         FILE_TYPE: /(image\/jpeg|image\/png|image\/jpg|image\/webp)$/
+    },
+    FILE_UPLOAD: {
+        MAX_COUNT: 20,
+        MAX_SIZE: 50 * 1024 * 1024,
+        FILE_TYPE: /jpeg|jpg|png|gif|mp4|avi|webp|mkv|pdf|docx|mp3|zip|xlsx|txt|csv|rar|7z|tar|gz|sql|pptx|txt/,
+    },
+    TYPE_MESSAGE: {
+        TEXT: 0,
+        IMAGE: 1,
+        FILE: 2
     }
 };
 

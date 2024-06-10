@@ -4,6 +4,7 @@ import { ClientSession, Model, now } from 'mongoose';
 import { IUserConversationRepository } from 'src/domain/chat/repository/user-conversation.repository';
 import { UserConversation } from '../entities/user-conversation.entity';
 import { UserConversationModel } from 'src/domain/chat/models/conversation/user-conversation.model';
+import { APPLICATION_CONST } from 'src/const/application';
 
 
 @Injectable()
@@ -28,6 +29,31 @@ export class UserConversationRepository implements IUserConversationRepository {
     const userConversation = await this.userConversation
       .findOne({
         'conversation.name': name,
+        user_id: userId,
+      })
+      .exec();
+
+    return userConversation ? this.mappingUserConversationEntityToModel(userConversation) : null;
+  }
+
+  async findByConversationId(conversationId: string): Promise<UserConversationModel[] | []> {
+    const userConversations = await this.userConversation
+      .find({
+        conversation: conversationId,
+      })
+      .exec();
+
+    return userConversations.length > 0
+      ? userConversations.map((conversation) =>
+          this.mappingUserConversationEntityToModel(conversation),
+        )
+      : [];
+  }
+
+  async findByUserIdAndConversationId(userId: string, conversationId: string): Promise<UserConversationModel | null> {
+    const userConversation = await this.userConversation
+      .findOne({
+        conversation: conversationId,
         user_id: userId,
       })
       .exec();
@@ -62,12 +88,26 @@ export class UserConversationRepository implements IUserConversationRepository {
       no_unread_message: model.getNoUnredMessage(),
       disabled_notify: model.getDisabledNotify(),
       expired_disabled_notify_at: model.getExpiredDisabledNotifyAt(),
-      created_at: now(),
-      updated_at: now(),
-      deleted_at: null
     }));
 
     await this.userConversation.insertMany(userConversations, { session });
+  }
+
+  async listUserConversationPaginate(userId: string, page: number): Promise<UserConversationModel[] | null> {
+    const userConversations = await this.userConversation
+      .find({
+        user_id: userId
+      })
+      .sort({ latest_active_at: -1 })
+      .skip((page - 1) * APPLICATION_CONST.CONVERSATION.LIMIT_PAGINATE)
+      .limit(APPLICATION_CONST.CONVERSATION.LIMIT_PAGINATE)
+      .exec();
+
+    return userConversations.length > 0
+      ? userConversations.map((conversation) =>
+          this.mappingUserConversationEntityToModel(conversation),
+        )
+      : [];
   }
 
   private mappingUserConversationEntityToModel(userConversation: UserConversation): UserConversationModel {

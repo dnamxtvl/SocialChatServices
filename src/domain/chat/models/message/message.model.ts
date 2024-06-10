@@ -5,23 +5,20 @@ import { isURL } from 'class-validator';
 import { HttpStatus } from '@nestjs/common';
 import { DomainError } from '../../exceptions';
 import { ExceptionCode } from '../../enums/exception-code';
-import { UserSendVO } from '../../value-objects/user-send.vo';
-import { Types } from 'mongoose';
-import { LatestUserSeen } from '../../value-objects/latest-user-seen.vo';
 
 export class MessageModel extends BaseModel {
   constructor(
     private readonly type: TypeMessageEnum,
     private readonly conversationId: string,
-    private readonly createdAt: Date,
     private readonly firstOfAvgTime: boolean,
     private readonly userSendId: string,
     private readonly id?: string,
     private readonly content?: string | string[],
-    private readonly latestUserSeenId?: string,
     private readonly parentId?: string,
+    private readonly latestUserSeenId?: string,
     private readonly deviceId?: string,
     private readonly ipSend?: string,
+    private readonly createdAt?: Date,
   ) {
     super();
     this.validateContent();
@@ -80,8 +77,8 @@ export class MessageModel extends BaseModel {
           ExceptionCode.MESSAGE_LENGTH_TO_BIG
         )
       }
-    } else if ((this.type === TypeMessageEnum.LINK || this.type === TypeMessageEnum.IMAGE || this.type === TypeMessageEnum.VIDEO || this.type === TypeMessageEnum.AUDIO) && typeof content === 'string') {
-      if (!isURL(content)) {
+    } else if (this.type === TypeMessageEnum.LINK && typeof this.content === 'string') {
+      if (!isURL(this.content)) {
         throw new DomainError(
           'Link không hợp lệ!',
           HttpStatus.UNPROCESSABLE_ENTITY,
@@ -89,22 +86,22 @@ export class MessageModel extends BaseModel {
         );
       }
     } else if (this.type === TypeMessageEnum.FILES || this.type === TypeMessageEnum.IMAGES || this.type === TypeMessageEnum.VIDEOS) {
-      if (!Array.isArray(content)) {
+      if (!Array.isArray(this.content)) {
         throw new DomainError(
           'Tin nhắn không hợp lệ!',
           HttpStatus.UNPROCESSABLE_ENTITY,
           ExceptionCode.INVALID_MESSAGE_IN_MODEL_DOMAIN
         )
       }
-      content.map((item) => {
-        if (!isURL(item)) {
-          throw new DomainError(
-            'Link không hợp lệ',
-            HttpStatus.UNPROCESSABLE_ENTITY,
-            ExceptionCode.INVALID_LINK
-          );
-        }
-      })
+      // this.content.map((item) => {
+      //   if (!isURL(item)) {
+      //     throw new DomainError(
+      //       'Link không hợp lệ',
+      //       HttpStatus.UNPROCESSABLE_ENTITY,
+      //       ExceptionCode.INVALID_LINK
+      //     );
+      //   }
+      // })
     }
   }
 }
