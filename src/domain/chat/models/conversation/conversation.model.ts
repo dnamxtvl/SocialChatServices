@@ -4,6 +4,8 @@ import { VALIDATION } from 'src/const/validation';
 import { DomainError } from '../../exceptions';
 import { ExceptionCode } from '../../enums/exception-code';
 import { HttpStatus } from '@nestjs/common';
+import { UserModel } from '../user/user.model';
+import { EXCEPTION_CODE_APPLICATION } from 'src/application/enums/exception-code.enum';
 
 export class ConversationModel extends BaseModel {
     constructor(
@@ -80,6 +82,16 @@ export class ConversationModel extends BaseModel {
                 HttpStatus.UNPROCESSABLE_ENTITY,
                 ExceptionCode.LATEST_MESSAGE_INVALID
             )
+        }
+    }
+
+    public checkUserSendIsSameOrganizationWithConversation(user: UserModel): void {
+        if (this.getOrganizationId() !== user.getOrganizationId()) {
+            throw new DomainError(
+                'User với id ' + user.getId() + ' không thuộc đơn vị này!',
+                HttpStatus.BAD_REQUEST,
+                EXCEPTION_CODE_APPLICATION.USER_NOT_IN_ORGANIZATION
+            );
         }
     }
 }

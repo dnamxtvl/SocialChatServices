@@ -21,7 +21,8 @@ import { UserConversation, UserConversationSchema } from 'src/infrastructure/ent
 import { Conversation, ConversationSchema } from 'src/infrastructure/entities/conversation.entity';
 import { ListConversationByUserCommandHandle } from 'src/application/command-handle/list-conversaion-by-user.command-handle';
 import { SendMessageCommandHandle } from 'src/application/command-handle/send-message.command-handle';
-import { BullModule } from '@nestjs/bull';
+import { BullModule } from '@nestjs/bullmq';
+import { ConversationQueue } from 'src/application/queues/conversation.queue';
 
 const RepositoryProviders: Provider[] = [
   UserRepositoryProvider,
@@ -36,18 +37,31 @@ export const CommandHandler = [
   SendMessageCommandHandle
 ];
 
+export const QueueHandle = [
+  ConversationQueue
+];
+
 @Module({
   imports: [
-    BullModule.forRoot({
-      redis: {
-        host: process.env.REDIS_HOST,
-        port: process.env.REDIS_PORT as any,
-        password: process.env.REDIS_PASSWORD
-      },
-    }),
+    // BullModule.forRoot({
+    //   redis: {
+    //     host: process.env.REDIS_HOST,
+    //     port: process.env.REDIS_PORT as any,
+    //     password: process.env.REDIS_PASSWORD
+    //   },
+    // }),
+    BullModule.forRootAsync({
+			useFactory: async () => ({
+				connection: {
+					host: 'localhost',
+					port: 6379,
+          password: 'secret_redis',
+				},
+			}),
+		}),
     BullModule.registerQueue({
-      name: 'conversation-queue',
-      prefix: 'chat',
+      name: 'conversation',
+      // prefix: 'chat',
     }),
     MulterModule.register({
       dest: './public/images',
@@ -110,9 +124,10 @@ export const CommandHandler = [
   controllers: [MessageController, ConversationController],
   providers: [
     ...RepositoryProviders,
-    ...CommandHandler
+    ...CommandHandler,
+    ...QueueHandle
   ],
-  exports: [...RepositoryProviders],
+  exports: [...RepositoryProviders, ...CommandHandler],
 })
 
 export class AppModule {

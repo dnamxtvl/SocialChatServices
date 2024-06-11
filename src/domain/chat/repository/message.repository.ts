@@ -9,5 +9,5 @@ export abstract class IMessageRepository extends BaseRepository {
 
   saveMessage: (model: MessageModel, session: ClientSession) => Promise<MessageModel>;
 
-  insertManyMessages: (models: MessageModel[], session: ClientSession) => Promise<void>;
+  insertManyMessages: (models: MessageModel[], session: ClientSession) => Promise<MessageModel[]>;
 }

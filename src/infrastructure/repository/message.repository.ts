@@ -49,7 +49,7 @@ export class MessageRepository implements IMessageRepository {
     return this.mappingMessageEntityToModel(newMessage);
   }
 
-  async insertManyMessages(models: MessageModel[], session: ClientSession): Promise<void> {
+  async insertManyMessages(models: MessageModel[], session: ClientSession): Promise<MessageModel[]> {
     const messages = models.map((model) => {
       return {
         type: model.getType(),
@@ -62,8 +62,9 @@ export class MessageRepository implements IMessageRepository {
         status: StatusMessageEnum.UNREAD
       }
     });
+    const newMessage = await this.message.insertMany(messages, { session });
 
-    await this.message.insertMany(messages, { session });
+    return newMessage.map((message) => this.mappingMessageEntityToModel(message));
   }
 
   private mappingMessageEntityToModel(message: Message): MessageModel {

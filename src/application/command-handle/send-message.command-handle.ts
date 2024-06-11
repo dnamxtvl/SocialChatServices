@@ -1,4 +1,4 @@
-import { CommandHandler, ICommandHandler, EventBus } from "@nestjs/cqrs";
+import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { IUserConversationRepository } from "src/domain/chat/repository/user-conversation.repository";
 import { SendMessageCommand } from "../command/send-message.command";
 import { ApplicationError } from "../exceptions";
@@ -7,12 +7,13 @@ import { EXCEPTION_CODE_APPLICATION } from "../enums/exception-code.enum";
 import { IConversationRepository } from "src/domain/chat/repository/conversation.repository";
 import { IUserRepository } from "src/domain/chat/repository/user.repository";
 import { addTypeMessageForFiles } from "src/helpers/message.helper";
-import { UserConversationModel } from "src/domain/chat/models/conversation/user-conversation.model";
 import { MessageModel } from "src/domain/chat/models/message/message.model";
 import { TypeMessageEnum } from "src/const/enums/message/type";
 import { IMessageRepository } from "src/domain/chat/repository/message.repository";
 import { InjectConnection } from "@nestjs/mongoose";
 import { Connection } from "mongoose";
+import { InjectQueue } from "@nestjs/bullmq";
+import { Queue } from "bullmq";
 
 @CommandHandler(SendMessageCommand)
 export class SendMessageCommandHandle implements ICommandHandler<SendMessageCommand> {
@@ -22,14 +23,14 @@ export class SendMessageCommandHandle implements ICommandHandler<SendMessageComm
     private readonly messageRepository: IMessageRepository,
     private readonly userRepository: IUserRepository,
     @InjectConnection() private readonly connection: Connection,
-    private readonly eventBus: EventBus
+    @InjectQueue('conversation') private conversationQueue: Queue
   ) {}
 
   async execute(command: SendMessageCommand) {
     const userSend = await this.userRepository.findById(command.userId);
     if (userSend === null) {
         throw new ApplicationError(
-            'User với id ' + command.userId + ' kh không tồn tại!',
+            'User với id ' + command.userId + ' không tồn tại!',
             HttpStatus.NOT_FOUND,
             EXCEPTION_CODE_APPLICATION.USER_NOT_FOUND_WHEN_SEND_MESSAGE
         );
@@ -43,24 +44,12 @@ export class SendMessageCommandHandle implements ICommandHandler<SendMessageComm
             EXCEPTION_CODE_APPLICATION.CONVERSATION_NOT_FOUND_WHEN_SEND_MESSAGE
         );
     }
-
-    if (conversaion.getOrganizationId() !== userSend.getOrganizationId()) {
-        throw new ApplicationError(
-            'User với id ' + userSend.getId() + ' không thuộc đơn vị này!',
-            HttpStatus.BAD_REQUEST,
-            EXCEPTION_CODE_APPLICATION.USER_NOT_IN_ORGANIZATION
-        );
-    }
-
+    conversaion.checkUserSendIsSameOrganizationWithConversation(userSend);
     const userOfConversation = await this.userConversationRepository.findByConversationId(command.conversationId);
-    if (userOfConversation.length === 0 || userOfConversation.map((user: UserConversationModel) => user.getUserId()).indexOf(command.userId) === -1) {
-        throw new ApplicationError(
-            'User với id ' + userSend.getId() + ' không thuộc cuộc trò chuyện!',
-            HttpStatus.BAD_REQUEST,
-            EXCEPTION_CODE_APPLICATION.USER_NOT_IN_CONVERSATION_WHEN_SEND_MESSAGE
-        );
-    }
+    userSend.checkUserInConversation(userOfConversation);
 
+    let files = command.files && command.files.length > 0 ? addTypeMessageForFiles(command.files) : [];
+    let latestMessageId = null;
     const session = await this.connection.startSession();
     session.startTransaction();
 
@@ -75,10 +64,10 @@ export class SendMessageCommandHandle implements ICommandHandler<SendMessageComm
                 command.messageText,
                 command.replyMessageId.length > 0 ? command.replyMessageId : null
             );
-            await this.messageRepository.saveMessage(message, session);
+            let newMessage = await this.messageRepository.saveMessage(message, session);
+            latestMessageId = newMessage.getId();
         }
 
-        let files = command.files && command.files.length > 0 ? addTypeMessageForFiles(command.files) : [];
         if (files.length > 0) {
             let messages = files.map(async (file) => {
                 return new MessageModel(
@@ -91,8 +80,23 @@ export class SendMessageCommandHandle implements ICommandHandler<SendMessageComm
                     command.replyMessageId.length > 0 ? command.replyMessageId : null
                 );
             });
-            await this.messageRepository.insertManyMessages(await Promise.all(messages), session);
+            const newMessages = await this.messageRepository.insertManyMessages(await Promise.all(messages), session);
+            latestMessageId = latestMessageId ?? newMessages.pop().getId();
         }
+
+        if (latestMessageId === null) throw new ApplicationError(
+            'Đã xảy ra lỗi!',
+            HttpStatus.NOT_FOUND,
+            EXCEPTION_CODE_APPLICATION.ERROR_UNKNOW_WHEN_SEND_MESSAGE
+        )
+
+        await this.conversationQueue.add('message_sent', {
+            conversationId: command.conversationId,
+            userSend: userSend,
+            message: command.messageText.length > 0 ? userSend.getLastName() + ': ' + command.messageText 
+                : userSend.getLastName + ' đã gửi ' + files.length + ' file',
+            latestMessageId: latestMessageId.toString(),
+        })
 
         session.commitTransaction();
     } catch (error) {

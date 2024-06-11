@@ -30,4 +30,8 @@ export abstract class IUserConversationRepository extends BaseRepository {
     userId: string,
     page: number
   ) => Promise<UserConversationModel[] | null>;
+
+  bulkWriteUpsert : (
+    models: UserConversationModel[], userSendId: string, latestMessageId: string
+  ) => Promise<void>;
 }

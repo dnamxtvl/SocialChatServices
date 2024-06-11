@@ -1,6 +1,7 @@
 import { Controller } from "@nestjs/common";
 import { HttpStatus } from "@nestjs/common";
 import * as express from 'express'
+import { logger } from "src/logs/nest.log";
 
 @Controller()
 export class BaseController {

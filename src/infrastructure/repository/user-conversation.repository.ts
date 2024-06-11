@@ -124,4 +124,27 @@ export class UserConversationRepository implements IUserConversationRepository {
       userConversation._id.toString()
     );
   }
+
+  async bulkWriteUpsert(userConversations: UserConversationModel[], userSendId: string, latestMessageId: string): Promise<void> {
+    const userConversationsEntity = userConversations.filter((model: UserConversationModel) => model.getUserId() != userSendId).map((model) => ({
+      _id: model.getId(),
+      user_id: model.getUserId(),
+      conversation: model.getConversationId(),
+      last_message: latestMessageId,
+      latest_active_at: model.getLatestActivity(),
+      no_unread_message: model.getNoUnredMessage() + 1,
+      disabled_notify: model.getDisabledNotify(),
+      expired_disabled_notify_at: model.getExpiredDisabledNotifyAt(),
+    }));
+
+    const bulkOps = userConversationsEntity.map((model) => ({
+      updateOne: {
+        filter: { _id: model._id },
+        update: { $set: model },
+        upsert: true,
+      },
+    }));
+
+    await this.userConversation.bulkWrite(bulkOps);
+  }
 }

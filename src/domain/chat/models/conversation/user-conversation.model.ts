@@ -8,9 +8,9 @@ export class UserConversationModel extends BaseModel {
     constructor(
         private readonly userId: string,
         private readonly conversationId: string,
-        private readonly latestMessageId: string,
+        private latestMessageId: string,
         private readonly latestActivity: Date,
-        private readonly noUnredMessage: number,
+        private noUnredMessage: number,
         private readonly disabledNotify: boolean,
         private readonly expiredDisabledNotifyAt: Date | null,
         private readonly createdAt?: Date,
@@ -84,5 +84,13 @@ export class UserConversationModel extends BaseModel {
                 ExceptionCode.CONVERSATION_LENGTH_INVALID
             )
         }
+    }
+
+    public setLatestMessageId(latestMessageId: string): void {
+        this.latestMessageId = latestMessageId;
+    }
+
+    public incrementNoUnredMessage(): void {
+        this.noUnredMessage++;
     }
 }

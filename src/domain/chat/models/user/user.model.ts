@@ -2,6 +2,10 @@ import { EmailVO } from '../../value-objects/email.vo';
 import { BaseModel } from '../base';
 import { GenderVO } from '../../value-objects/gender.vo';
 import { TypeAccountEnum } from 'src/const/enums/user/type-account';
+import { UserConversationModel } from '../conversation/user-conversation.model';
+import { DomainError } from '../../exceptions';
+import { HttpStatus } from '@nestjs/common';
+import { EXCEPTION_CODE_APPLICATION } from 'src/application/enums/exception-code.enum';
 
 export class UserModel extends BaseModel {
   constructor(
@@ -72,6 +76,16 @@ export class UserModel extends BaseModel {
 
   public getTypeAccount(): TypeAccountEnum {
     return this.typeAccount;
+  }
+
+  public checkUserInConversation (userOfConversation: UserConversationModel[] | []): void {
+    if (userOfConversation.length === 0 || userOfConversation.map((user: UserConversationModel) => user.getUserId()).indexOf(this.id) === -1) {
+      throw new DomainError(
+        'User với id ' + this.id + ' không thuộc cuộc trò chuyện!',
+        HttpStatus.BAD_REQUEST,
+        EXCEPTION_CODE_APPLICATION.USER_NOT_IN_CONVERSATION_WHEN_SEND_MESSAGE,
+      );
+    }
   }
 }
   
