@@ -93,8 +93,6 @@ export class SendMessageCommandHandle implements ICommandHandler<SendMessageComm
         await this.conversationQueue.add('message_sent', {
             conversationId: command.conversationId,
             userSend: userSend,
-            message: command.messageText.length > 0 ? userSend.getLastName() + ': ' + command.messageText 
-                : userSend.getLastName + ' đã gửi ' + files.length + ' file',
             latestMessageId: latestMessageId.toString(),
         })
 

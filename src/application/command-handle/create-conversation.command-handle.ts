@@ -15,7 +15,6 @@ import { now } from "mongoose";
 import { UserConversationModel } from "src/domain/chat/models/conversation/user-conversation.model";
 import { InjectConnection } from "@nestjs/mongoose";
 import { Connection } from "mongoose";
-import * as moment from 'moment-timezone';
 
 @CommandHandler(CreateConversationCommand)
 export class CreateConversationCommandHandle implements ICommandHandler<CreateConversationCommand> {

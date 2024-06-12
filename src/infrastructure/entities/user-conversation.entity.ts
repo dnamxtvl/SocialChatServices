@@ -6,6 +6,13 @@ import mongoose from 'mongoose';
 import { Conversation } from './conversation.entity';
 import { Message } from './message.entity';
 
+export interface LatestUserSendInfo {
+  id: string;
+  first_name: string;
+  last_name: string;
+  avatar: string | null;
+}
+
 export type MessagesDocument = HydratedDocument<UserConversation>;
 
 @Schema({
@@ -29,7 +36,19 @@ export class UserConversation {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Message' })
   last_message: Message;
 
-  @Prop()
+  @Prop({
+    type: {
+      id: { type: String },
+      first_name: { type: String },
+      last_name: { type: String },
+      avatar: { type: String, nullable: true },
+    },
+    _id: false, 
+    default: null
+  })
+  latest_user_seen: LatestUserSendInfo | null
+
+  @Prop({default: Date.now})
   latest_active_at: Date;
 
   @Prop({ type: Boolean })

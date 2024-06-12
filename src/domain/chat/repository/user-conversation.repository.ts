@@ -1,6 +1,7 @@
 import { BaseRepository } from './base';
 import { UserConversationModel } from '../models/conversation/user-conversation.model';
 import { ClientSession } from 'mongoose';
+import { UserModel } from '../models/user/user.model';
 
 export abstract class IUserConversationRepository extends BaseRepository {
   findByUserId: (userId: string) => Promise<UserConversationModel[] | null>;
@@ -32,6 +33,6 @@ export abstract class IUserConversationRepository extends BaseRepository {
   ) => Promise<UserConversationModel[] | null>;
 
   bulkWriteUpsert : (
-    models: UserConversationModel[], userSendId: string, latestMessageId: string
+    models: UserConversationModel[], userSend: any, latestMessageId: string
   ) => Promise<void>;
 }

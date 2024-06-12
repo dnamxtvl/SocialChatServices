@@ -48,7 +48,7 @@ export class ConversationQueue extends WorkerHost {
                 logger.info(`Prepare job ' + ${job.id}` + ' name ' + job.name + ' in function process');
                 try {
                     const userConversations = await this.userConversationRepository.findByConversationId(job.data.conversationId);
-                    await this.userConversationRepository.bulkWriteUpsert(userConversations, job.data.userSend.id, job.data.latestMessageId);
+                    await this.userConversationRepository.bulkWriteUpsert(userConversations, job.data.userSend, job.data.latestMessageId);
                 } catch (error: any) {
                     logger.error(error.stack);
                     console.log(error);

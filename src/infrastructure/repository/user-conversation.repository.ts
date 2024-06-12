@@ -5,6 +5,7 @@ import { IUserConversationRepository } from 'src/domain/chat/repository/user-con
 import { UserConversation } from '../entities/user-conversation.entity';
 import { UserConversationModel } from 'src/domain/chat/models/conversation/user-conversation.model';
 import { APPLICATION_CONST } from 'src/const/application';
+import { UserModel } from 'src/domain/chat/models/user/user.model';
 
 
 @Injectable()
@@ -98,10 +99,13 @@ export class UserConversationRepository implements IUserConversationRepository {
       .find({
         user_id: userId
       })
+      .populate('last_message')
       .sort({ latest_active_at: -1 })
       .skip((page - 1) * APPLICATION_CONST.CONVERSATION.LIMIT_PAGINATE)
       .limit(APPLICATION_CONST.CONVERSATION.LIMIT_PAGINATE)
       .exec();
+
+      console.log(userConversations);
 
     return userConversations.length > 0
       ? userConversations.map((conversation) =>
@@ -125,8 +129,8 @@ export class UserConversationRepository implements IUserConversationRepository {
     );
   }
 
-  async bulkWriteUpsert(userConversations: UserConversationModel[], userSendId: string, latestMessageId: string): Promise<void> {
-    const userConversationsEntity = userConversations.filter((model: UserConversationModel) => model.getUserId() != userSendId).map((model) => ({
+  async bulkWriteUpsert(userConversations: UserConversationModel[], userSend: any, latestMessageId: string): Promise<void> {
+    const userConversationsEntity = userConversations.filter((model: UserConversationModel) => model.getUserId() != userSend.id).map((model) => ({
       _id: model.getId(),
       user_id: model.getUserId(),
       conversation: model.getConversationId(),
@@ -135,6 +139,12 @@ export class UserConversationRepository implements IUserConversationRepository {
       no_unread_message: model.getNoUnredMessage() + 1,
       disabled_notify: model.getDisabledNotify(),
       expired_disabled_notify_at: model.getExpiredDisabledNotifyAt(),
+      latest_user_seen: {
+        id: userSend.id,
+        first_name: userSend.firstName,
+        last_name: userSend.lastName,
+        avatar: userSend.avatar,
+      },
     }));
 
     const bulkOps = userConversationsEntity.map((model) => ({
