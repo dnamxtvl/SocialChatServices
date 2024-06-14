@@ -5,6 +5,7 @@ import { IConversationRepository } from "src/domain/chat/repository/conversation
 import { ApplicationError } from "../exceptions";
 import { HttpStatus } from "@nestjs/common";
 import { EXCEPTION_CODE_APPLICATION } from "../enums/exception-code.enum";
+import { TypeConversationEnum } from "src/const/enums/conversation/type.enum.conversation";
 
 @CommandHandler(UserViewConversationCommand)
 export class UserViewConversationCommandHandle implements ICommandHandler<UserViewConversationCommand> {
@@ -30,5 +31,13 @@ export class UserViewConversationCommandHandle implements ICommandHandler<UserVi
         HttpStatus.FORBIDDEN,
         EXCEPTION_CODE_APPLICATION.USER_NOT_IN_CONVERSATION_WHEN_VIEW_CONVERSATION
     );
+
+    if (conversation.getType() == TypeConversationEnum.SINGLE) {
+      // get user partner
+      // check user partner is active
+      // check user partner is not block
+    }
+
+    
   }
 }
