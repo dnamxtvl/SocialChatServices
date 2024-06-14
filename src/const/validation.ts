@@ -59,7 +59,8 @@ export const VALIDATION = {
             MAX_LENGTH: 255
         },
         MAX_COUNT_USER: 1000,
-        ID_LENGTH: 24
+        ID_LENGTH: 24,
+        MIN_MEMBER: 2
     },
     USER: {
         ID_LENGTH: 36

@@ -1,7 +1,6 @@
 import { UserModel } from '../models/user/user.model';
-import { BaseRepository } from './base';
 
-export abstract class IUserRepository extends BaseRepository {
+export abstract class IUserRepository {
   findById: (id: string) => Promise<UserModel | null>;
 
   findByManyIds: (ids: string[]) => Promise<UserModel[] | null>;

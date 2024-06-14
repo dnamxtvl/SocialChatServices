@@ -3,6 +3,9 @@ import { DomainError } from "../../exceptions";
 import { ExceptionCode } from "../../enums/exception-code";
 import { HttpStatus } from "@nestjs/common";
 import { VALIDATION } from "src/const/validation";
+import { UserSendVO } from "../../value-objects/user-send.vo";
+import { ConversationModel } from "./conversation.model";
+import { MessageModel } from "../message/message.model";
 
 export class UserConversationModel extends BaseModel {
     constructor(
@@ -16,6 +19,11 @@ export class UserConversationModel extends BaseModel {
         private readonly createdAt?: Date,
         private readonly updatedAt?: Date,
         private id?: string,
+        private readonly latestMessage?: MessageModel,
+        private userSendLatestMessage?: UserSendVO,
+        private conversation?: ConversationModel,
+        private userSeenLatestMessage?: UserSendVO,
+        private latestConversationUserViewAt?: Date,
     ) {
         super();
         this.validateConversationId();
@@ -64,6 +72,18 @@ export class UserConversationModel extends BaseModel {
 
     public setId(id: string): void {
         this.id = id;
+    }
+
+    public getUserSendLatestMessage(): UserSendVO | null {
+        return this.userSendLatestMessage;
+    }
+
+    public getConversation(): ConversationModel | null {
+        return this.conversation;
+    }
+
+    public getLatestMessage(): MessageModel | null {
+        return this.latestMessage;
     }
 
     private validateLatestMessage(): void {

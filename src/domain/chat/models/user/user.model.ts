@@ -87,5 +87,15 @@ export class UserModel extends BaseModel {
       );
     }
   }
+
+  public checkIsSameOrganizationWithUser (organizationId: number): void {
+    if (this.organizationId !== organizationId) {
+      throw new DomainError(
+        'User với id ' + this.getId() + ' không thuộc đơn vị này!',
+        HttpStatus.BAD_REQUEST,
+        EXCEPTION_CODE_APPLICATION.USER_NOT_IN_ORGANIZATION,
+      );
+    }
+  }
 }
   

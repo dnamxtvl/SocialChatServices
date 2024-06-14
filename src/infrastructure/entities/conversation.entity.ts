@@ -34,19 +34,22 @@ export class Conversation {
   latest_active_at: Date;
 
   @Prop()
+  count_member: number;
+
+  @Prop()
   created_by: string;
 
   @Prop()
   organization_id: number;
 
   @Prop({ default: moment.tz(new Date(), 'Asia/Ho_Chi_Minh') })
-  createdAt: Date;
+  created_at: Date;
 
   @Prop({ default: Date.now })
-  updatedAt: Date;
+  updated_at: Date;
 
   @Prop({ default: null })
-  deletedAt: Date | null;
+  deleted_at: Date | null;
 }
 
 export const ConversationSchema = SchemaFactory.createForClass(Conversation);

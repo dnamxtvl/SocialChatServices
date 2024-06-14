@@ -15,6 +15,7 @@ import { now } from "mongoose";
 import { UserConversationModel } from "src/domain/chat/models/conversation/user-conversation.model";
 import { InjectConnection } from "@nestjs/mongoose";
 import { Connection } from "mongoose";
+import { VALIDATION } from "src/const/validation";
 
 @CommandHandler(CreateConversationCommand)
 export class CreateConversationCommandHandle implements ICommandHandler<CreateConversationCommand> {
@@ -28,6 +29,12 @@ export class CreateConversationCommandHandle implements ICommandHandler<CreateCo
 
   async execute(command: CreateConversationCommand) {
     let listUserId = Array.from(new Set(command.listUserId));
+    if (listUserId.length < VALIDATION.CONVERSATION.MIN_MEMBER) throw new ApplicationError(
+      'Danh sách phải có ít nhất 2 user!',
+      HttpStatus.BAD_REQUEST,
+      EXCEPTION_CODE_APPLICATION.LIST_USER_CONVERSATION_LESS_THAN_TWO
+    );
+  
     const users = await this.userRepository.findByManyIds(listUserId);
     if (users === null) throw new ApplicationError(
       'Không tìm thấy user nào!',
@@ -42,11 +49,7 @@ export class CreateConversationCommandHandle implements ICommandHandler<CreateCo
     );
 
     for (const user of users) {
-      if (user.getOrganizationId() !== command.authUser.organization_id) throw new ApplicationError(
-        'User với id ' + user.getId() + ' không thuộc đơn vị này!',
-        HttpStatus.BAD_REQUEST,
-        EXCEPTION_CODE_APPLICATION.USER_NOT_IN_ORGANIZATION
-      );
+      user.checkIsSameOrganizationWithUser(command.authUser.organization_id);
     }
 
     if (!listUserId.includes(command.authUser.id)) listUserId.push(command.authUser.id);
@@ -56,6 +59,7 @@ export class CreateConversationCommandHandle implements ICommandHandler<CreateCo
       command.authUser.organization_id,
       TypeConversationEnum.GROUP,
       new Date(),
+      listUserId.length,
       null,
       null,
       command.avatar,
@@ -74,7 +78,7 @@ export class CreateConversationCommandHandle implements ICommandHandler<CreateCo
       let firstMessageConversation = await this.messageRepository.saveMessage(firstMessage, session);
       let conversations = listUserId.map((userId) => {
         return new UserConversationModel(
-          userId, newConversation.getId(), firstMessageConversation.getId(), now(), 0, false, null, now(), now()
+          userId, newConversation.getId(), firstMessageConversation.getId(), now(), 0, false, null
         );
       })
       await this.userConversationRepository.insertUserConversation(conversations, session);

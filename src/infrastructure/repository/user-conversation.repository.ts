@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { ClientSession, Model, now } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { IUserConversationRepository } from 'src/domain/chat/repository/user-conversation.repository';
 import { UserConversation } from '../entities/user-conversation.entity';
 import { UserConversationModel } from 'src/domain/chat/models/conversation/user-conversation.model';
 import { APPLICATION_CONST } from 'src/const/application';
-import { UserModel } from 'src/domain/chat/models/user/user.model';
-
+import { BaseRepository } from './base';
 
 @Injectable()
-export class UserConversationRepository implements IUserConversationRepository {
-  constructor(@InjectModel('UserConversation') private readonly userConversation: Model<UserConversation>) {}
+export class UserConversationRepository extends BaseRepository implements IUserConversationRepository {
+  constructor(@InjectModel('UserConversation') private readonly userConversation: Model<UserConversation>) {
+    super();
+  }
 
   async findByUserId(userId: string): Promise<UserConversationModel[] | null> {
     const userConversations = await this.userConversation
@@ -99,7 +100,7 @@ export class UserConversationRepository implements IUserConversationRepository {
       .find({
         user_id: userId
       })
-      .populate('last_message')
+      .populate(['last_message', 'conversation'])
       .sort({ latest_active_at: -1 })
       .skip((page - 1) * APPLICATION_CONST.CONVERSATION.LIMIT_PAGINATE)
       .limit(APPLICATION_CONST.CONVERSATION.LIMIT_PAGINATE)
@@ -114,23 +115,8 @@ export class UserConversationRepository implements IUserConversationRepository {
       : [];
   }
 
-  private mappingUserConversationEntityToModel(userConversation: UserConversation): UserConversationModel {
-    return new UserConversationModel(
-      userConversation.user_id,
-      userConversation.conversation._id.toString(),
-      userConversation.last_message._id.toString(),
-      userConversation.latest_active_at,
-      userConversation.no_unread_message,
-      userConversation.disabled_notify,
-      userConversation.expired_disabled_notify_at,
-      userConversation.createdAt,
-      userConversation.updatedAt,
-      userConversation._id.toString()
-    );
-  }
-
   async bulkWriteUpsert(userConversations: UserConversationModel[], userSend: any, latestMessageId: string): Promise<void> {
-    const userConversationsEntity = userConversations.filter((model: UserConversationModel) => model.getUserId() != userSend.id).map((model) => ({
+    const userConversationsEntity = userConversations.map((model) => ({
       _id: model.getId(),
       user_id: model.getUserId(),
       conversation: model.getConversationId(),
@@ -139,10 +125,11 @@ export class UserConversationRepository implements IUserConversationRepository {
       no_unread_message: model.getNoUnredMessage() + 1,
       disabled_notify: model.getDisabledNotify(),
       expired_disabled_notify_at: model.getExpiredDisabledNotifyAt(),
-      latest_user_seen: {
+      latest_user_send: {
         id: userSend.id,
         first_name: userSend.firstName,
         last_name: userSend.lastName,
+        email: userSend.email.value,
         avatar: userSend.avatar,
       },
     }));

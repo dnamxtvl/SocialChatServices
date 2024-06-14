@@ -1,8 +1,7 @@
 import { MessageModel } from '../models/message/message.model';
-import { BaseRepository } from './base';
 import { ClientSession } from 'mongoose';
 
-export abstract class IMessageRepository extends BaseRepository {
+export abstract class IMessageRepository {
   findById: (id: string) => Promise<MessageModel | null>;
 
   isFirstOfAvgTime: (conversationId: string) => Promise<boolean>;

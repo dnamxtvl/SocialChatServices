@@ -14,6 +14,7 @@ export class ConversationModel extends BaseModel {
         private readonly organizationId: number,
         private readonly type: TypeConversationEnum,
         private readonly latestActivity: Date,
+        private readonly countMember: number,
         private readonly latestMessageId?: string,
         private readonly id?: string,
         private readonly avatar?: string | string[],
@@ -59,6 +60,10 @@ export class ConversationModel extends BaseModel {
 
     public getAvatar(): string | string[] | null {
         return this.avatar;
+    }
+
+    public getCountMember(): number {
+        return this.countMember;
     }
 
     public getLatestActivity(): Date {
