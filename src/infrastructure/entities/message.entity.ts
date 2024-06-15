@@ -30,7 +30,6 @@ export type MessagesDocument = HydratedDocument<Message>;
 @Schema({
   collection: 'messages',
   versionKey: false,
-  timestamps: true,
 })
 export class Message {
   @Transform(({ value }) => value.toString())

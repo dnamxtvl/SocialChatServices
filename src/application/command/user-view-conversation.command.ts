@@ -7,31 +7,20 @@ import { UserModel } from "src/domain/chat/models/user/user.model";
 import { EmailVO } from "src/domain/chat/value-objects/email.vo";
 import { UserStatusActiveEnum } from "src/const/enums/user/status-active";
 
-export class SendMessageCommand {
+export class UserViewConversationCommand {
     constructor(
       public readonly user: AuthUser,
       public readonly conversationId: string,
-      public readonly messageText?: string,
-      public readonly replyMessageId?: string,
-      public readonly files?: Express.Multer.File[]
     ) {
-        this.validateMessageContent();
+        this.validateConversationId();
     }
 
-    private validateMessageContent() {
-        if (!this.messageText && this.files.length === 0) {
+    private validateConversationId() {
+        if (!this.conversationId && this.conversationId.length !== VALIDATION.CONVERSATION.ID_LENGTH) {
             throw new ApplicationError(
-                'Bạn chưa nhập nội dung tin nhắn!',
+                'Id cuộc trò chuyện không hợp lệ!!',
                 HttpStatus.BAD_REQUEST,
                 ExceptionCode.MESSAGE_TEXT_IS_REQUIRED
-            );
-        }
-
-        if (this.messageText.length > VALIDATION.MESSAGE.CONTENT.MAX_LENGTH) {
-            throw new ApplicationError(
-                'Tin nhắn không được vượt quá ' + VALIDATION.MESSAGE.CONTENT.MAX_LENGTH + ' ký tự!',
-                HttpStatus.BAD_REQUEST,
-                ExceptionCode.MESSAGE_TEXT_IS_TOO_LONG
             );
         }
     }

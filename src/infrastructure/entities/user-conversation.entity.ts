@@ -10,6 +10,7 @@ export interface LatestUserSendInfo {
   id: string;
   first_name: string;
   last_name: string;
+  email: string;
   avatar: string | null;
 }
 
@@ -18,7 +19,6 @@ export type MessagesDocument = HydratedDocument<UserConversation>;
 @Schema({
   collection: 'user_conversation',
   versionKey: false,
-  timestamps: true,
 })
 export class UserConversation {
   @Transform(({ value }) => value.toString())
@@ -41,15 +41,32 @@ export class UserConversation {
       id: { type: String },
       first_name: { type: String },
       last_name: { type: String },
+      email: { type: String },
       avatar: { type: String, nullable: true },
     },
     _id: false, 
     default: null
   })
-  latest_user_seen: LatestUserSendInfo | null
+  latest_user_send: LatestUserSendInfo | null
 
-  @Prop({default: Date.now})
+  @Prop({
+    type: {
+      id: { type: String },
+      first_name: { type: String },
+      last_name: { type: String },
+      email: { type: String },
+      avatar: { type: String, nullable: true },
+    },
+    _id: false, 
+    default: null
+  })
+  latest_user_seen: LatestUserSendInfo | null;
+
+  @Prop({ default: Date.now })
   latest_active_at: Date;
+
+  @Prop({ default: null })
+  latest_user_view_conversation_at: Date | null;
 
   @Prop({ type: Boolean })
   disabled_notify: boolean;

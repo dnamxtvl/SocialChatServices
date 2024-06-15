@@ -5,11 +5,14 @@ import { MessageModel } from 'src/domain/chat/models/message/message.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ClientSession } from 'mongoose';
 import { APPLICATION_CONST } from 'src/const/application';
+import { BaseRepository } from './base';
 
 
 @Injectable()
-export class MessageRepository implements IMessageRepository {
-  constructor(@InjectModel('Message') private readonly message: Model<Message>) {}
+export class MessageRepository extends BaseRepository implements IMessageRepository {
+  constructor(@InjectModel('Message') private readonly message: Model<Message>) {
+    super();
+  }
   
   async findById(id: string): Promise<MessageModel | null> {
     const message = await this.message
@@ -65,21 +68,5 @@ export class MessageRepository implements IMessageRepository {
     const newMessage = await this.message.insertMany(messages, { session });
 
     return newMessage.map((message) => this.mappingMessageEntityToModel(message));
-  }
-
-  private mappingMessageEntityToModel(message: Message): MessageModel {
-    return new MessageModel(
-      message.type,
-      message.conversation._id.toString(),
-      message.first_of_avg_time,
-      message.user_send_id,
-      message._id.toString(),
-      message.content,
-      message.latest_user_seen_id,
-      message.parent_id ? message.parent_id.toString() : null,
-      message.device_id,
-      message.ip_send,
-      message.created_at,
-    )
   }
 }

@@ -27,15 +27,7 @@ export class SendMessageCommandHandle implements ICommandHandler<SendMessageComm
   ) {}
 
   async execute(command: SendMessageCommand) {
-    const userSend = await this.userRepository.findById(command.userId);
-    if (userSend === null) {
-        throw new ApplicationError(
-            'User với id ' + command.userId + ' không tồn tại!',
-            HttpStatus.NOT_FOUND,
-            EXCEPTION_CODE_APPLICATION.USER_NOT_FOUND_WHEN_SEND_MESSAGE
-        );
-    }
-
+    const userSend = command.mappingUserEntityToModel();
     let conversaion = await this.conversationRepository.findById(command.conversationId);
     if (conversaion === null) {
         throw new ApplicationError(
@@ -50,6 +42,8 @@ export class SendMessageCommandHandle implements ICommandHandler<SendMessageComm
 
     let files = command.files && command.files.length > 0 ? addTypeMessageForFiles(command.files) : [];
     let latestMessageId = null;
+    let replyMessageId = command.replyMessageId.length > 0 ?
+        (await this.messageRepository.findById(command.replyMessageId) ? command.replyMessageId : null) : null;
     const session = await this.connection.startSession();
     session.startTransaction();
 
@@ -59,10 +53,10 @@ export class SendMessageCommandHandle implements ICommandHandler<SendMessageComm
                 TypeMessageEnum.TEXT,
                 command.conversationId,
                 await this.messageRepository.isFirstOfAvgTime(command.conversationId),
-                command.userId,
+                userSend.getId(),
                 null,
                 command.messageText,
-                command.replyMessageId.length > 0 ? command.replyMessageId : null
+                replyMessageId
             );
             let newMessage = await this.messageRepository.saveMessage(message, session);
             latestMessageId = newMessage.getId();
@@ -74,10 +68,10 @@ export class SendMessageCommandHandle implements ICommandHandler<SendMessageComm
                     file.type,
                     command.conversationId,
                     await this.messageRepository.isFirstOfAvgTime(command.conversationId),
-                    command.userId,
+                    userSend.getId(),
                     null,
                     file.path,
-                    command.replyMessageId.length > 0 ? command.replyMessageId : null
+                    replyMessageId
                 );
             });
             const newMessages = await this.messageRepository.insertManyMessages(await Promise.all(messages), session);
@@ -91,10 +85,10 @@ export class SendMessageCommandHandle implements ICommandHandler<SendMessageComm
         )
 
         await this.conversationQueue.add('message_sent', {
-            conversationId: command.conversationId,
-            userSend: userSend,
-            latestMessageId: latestMessageId.toString(),
-        })
+          conversationId: command.conversationId,
+          userSend: userSend,
+          latestMessageId: latestMessageId.toString(),
+        });
 
         session.commitTransaction();
     } catch (error) {

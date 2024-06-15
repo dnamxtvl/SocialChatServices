@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Param, Post, UseInterceptors, UploadedFile, UseGuards,
-  MaxFileSizeValidator, ParseFilePipe, FileTypeValidator, Res, 
-  Req, UsePipes, ValidationPipe,
+  MaxFileSizeValidator, ParseFilePipe, FileTypeValidator, Res, UsePipes, ValidationPipe,
   Query} from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateConversationCommand } from 'src/application/command/create-conversation.command';
@@ -67,6 +66,18 @@ export class ConversationController extends BaseController {
       )
 
       return this.responseWithSuccess(res, listConversation);
+    } catch (error) {
+      logger.error(error.stack);
+
+      return this.responseWithError(res, error);
+    }
+  }
+
+  @Get('/user/view-conversation/:id')
+  async getConversationById(@Res() res: Response, @GetAuthUser() user: AuthUser, @Param('id') id: string) {
+    try {
+      
+      //return this.responseWithSuccess(res, listConversation);
     } catch (error) {
       logger.error(error.stack);
 

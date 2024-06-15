@@ -1,9 +1,7 @@
-import { BaseRepository } from './base';
 import { UserConversationModel } from '../models/conversation/user-conversation.model';
 import { ClientSession } from 'mongoose';
-import { UserModel } from '../models/user/user.model';
 
-export abstract class IUserConversationRepository extends BaseRepository {
+export abstract class IUserConversationRepository {
   findByUserId: (userId: string) => Promise<UserConversationModel[] | null>;
 
   findByUserIdAndName: (

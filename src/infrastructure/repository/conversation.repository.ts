@@ -4,12 +4,14 @@ import { ClientSession, Model, now } from 'mongoose';
 import { Conversation } from '../entities/conversation.entity';
 import { IConversationRepository } from 'src/domain/chat/repository/conversation.repository';
 import { ConversationModel } from 'src/domain/chat/models/conversation/conversation.model';
-import { APPLICATION_CONST } from 'src/const/application';
+import { BaseRepository } from './base';
 
 
 @Injectable()
-export class ConversationRepository implements IConversationRepository {
-  constructor(@InjectModel('Conversation') private readonly conversation: Model<Conversation>) {}
+export class ConversationRepository extends BaseRepository implements IConversationRepository {
+  constructor(@InjectModel('Conversation') private readonly conversation: Model<Conversation>) {
+    super();
+  }
   
   async findById(id: string): Promise<ConversationModel | null> {
     const conversation = await this.conversation.findById({
@@ -40,26 +42,12 @@ export class ConversationRepository implements IConversationRepository {
       organization_id: model.getOrganizationId(),
       type: model.getType(),
       latest_active_at: model.getLatestActivity(),
+      count_member: model.getCountMember(),
       last_message: model.getLatestMessageId(),
       avatar: model.getAvatar(),
     });
     const newConervsation = await conversation.save({ session });
 
     return this.mappingConversationEntityToModel(newConervsation);
-  }
-
-  private mappingConversationEntityToModel(conversation: Conversation): ConversationModel {
-    return new ConversationModel(
-      conversation.name,
-      conversation.created_by,
-      conversation.organization_id,
-      conversation.type,
-      conversation.latest_active_at,
-      conversation.last_message ? conversation.last_message._id.toString() : null,
-      conversation._id.toString(),
-      conversation.avatar,
-      conversation.created_at,
-      conversation.updated_at,
-    );
   }
 }

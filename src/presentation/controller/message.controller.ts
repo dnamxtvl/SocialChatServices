@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Req, Post, Res, Body, UseInterceptors, UploadedFiles, ParseFilePipe, MaxFileSizeValidator, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Param, Req, Post, Res, Body, UseInterceptors, UploadedFiles, ParseFilePipe, MaxFileSizeValidator } from '@nestjs/common';
 import { IUserRepository } from 'src/domain/chat/repository/user.repository';
 import { UseGuards } from '@nestjs/common';
 import { OrganiztionGuard } from '../guard/organization.guard';
@@ -58,7 +58,7 @@ export class MessageController extends BaseController {
   ) {
     try {
       await this.commandBus.execute(
-        new SendMessageCommand(user.id, conversationId, message ?? '', replyMessageId ?? '' , files),
+        new SendMessageCommand(user, conversationId, message ?? '', replyMessageId ?? '' , files),
       );
 
       return this.responseWithSuccess(res, null);

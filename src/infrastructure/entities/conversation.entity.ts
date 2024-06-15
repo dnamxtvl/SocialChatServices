@@ -34,6 +34,9 @@ export class Conversation {
   latest_active_at: Date;
 
   @Prop()
+  count_member: number;
+
+  @Prop()
   created_by: string;
 
   @Prop()
