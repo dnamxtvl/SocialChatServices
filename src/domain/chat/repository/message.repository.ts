@@ -9,4 +9,6 @@ export abstract class IMessageRepository {
   saveMessage: (model: MessageModel, session: ClientSession) => Promise<MessageModel>;
 
   insertManyMessages: (models: MessageModel[], session: ClientSession) => Promise<MessageModel[]>;
+
+  listMessagePaginate: (conversationId: string, page: number) => Promise<MessageModel[] | null>;
 }

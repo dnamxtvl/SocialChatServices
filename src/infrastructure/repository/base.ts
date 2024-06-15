@@ -6,6 +6,8 @@ import { UserSendVO } from 'src/domain/chat/value-objects/user-send.vo';
 import { EmailVO } from 'src/domain/chat/value-objects/email.vo';
 import { UserConversation } from "../entities/user-conversation.entity";
 import { UserConversationModel } from "src/domain/chat/models/conversation/user-conversation.model";
+import { Types } from "mongoose";
+let moment = require('moment-timezone')
 
 export class BaseRepository {
     protected mappingConversationEntityToModel(conversation: Conversation): ConversationModel {
@@ -19,8 +21,8 @@ export class BaseRepository {
             conversation.last_message ? conversation.last_message._id.toString() : null,
             conversation._id.toString(),
             conversation.avatar,
-            conversation.created_at,
-            conversation.updated_at,
+            moment.tz(conversation.created_at, 'Asia/Ho_Chi_Minh').format("YYYY-MM-DD HH:mm:ss"),
+            moment.tz(conversation.updated_at, 'Asia/Ho_Chi_Minh').format("YYYY-MM-DD HH:mm:ss")
         );
     }
 
@@ -36,7 +38,7 @@ export class BaseRepository {
           message.parent_id ? message.parent_id.toString() : null,
           message.device_id,
           message.ip_send,
-          message.created_at,
+          moment.tz(message.created_at, 'Asia/Ho_Chi_Minh').format("YYYY-MM-DD HH:mm:ss"),
         )
     }
 
@@ -45,14 +47,14 @@ export class BaseRepository {
           userConversation.user_id,
           userConversation.conversation._id.toString(),
           userConversation.last_message._id.toString(),
-          userConversation.latest_active_at,
+          moment.tz(userConversation.latest_active_at, 'Asia/Ho_Chi_Minh').format("YYYY-MM-DD HH:mm:ss"),
           userConversation.no_unread_message,
           userConversation.disabled_notify,
-          userConversation.expired_disabled_notify_at,
+          userConversation.expired_disabled_notify_at ? moment.tz(userConversation.expired_disabled_notify_at, 'Asia/Ho_Chi_Minh').format("YYYY-MM-DD HH:mm:ss") : null,
           userConversation.created_at,
-          userConversation.updated_at,
+          moment.tz(userConversation.updated_at, 'Asia/Ho_Chi_Minh').format("YYYY-MM-DD HH:mm:ss"),
           userConversation._id.toString(),
-          userConversation.last_message.created_at ? this.mappingMessageEntityToModel(userConversation.last_message) : null,
+          userConversation.last_message instanceof Types.ObjectId ? null : this.mappingMessageEntityToModel(userConversation.last_message),
           userConversation.latest_user_send ? new UserSendVO(
             userConversation.latest_user_send.id,
             userConversation.latest_user_send.first_name,

@@ -53,6 +53,13 @@ export class CreateConversationCommandHandle implements ICommandHandler<CreateCo
     }
 
     if (!listUserId.includes(command.authUser.id)) listUserId.push(command.authUser.id);
+    if (command.type != TypeConversationEnum.GROUP && listUserId.length > VALIDATION.CONVERSATION.MIN_MEMBER ||
+      command.type == TypeConversationEnum.YOURSELF && listUserId.length >= VALIDATION.CONVERSATION.MIN_MEMBER
+    ) throw new ApplicationError(
+      'Tùy chọn loại cuộc trò chuyện này không hợp lệ!',
+      HttpStatus.BAD_REQUEST,
+      EXCEPTION_CODE_APPLICATION.INVALID_TYPE_CONVERSATION
+    )
     let conversation = new ConversationModel(
       command.conversationName,
       command.authUser.id,

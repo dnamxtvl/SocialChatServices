@@ -86,6 +86,10 @@ export class UserConversationModel extends BaseModel {
         return this.latestMessage;
     }
 
+    public getLatestConversationUserViewAt(): Date | null {
+        return this.latestConversationUserViewAt;
+    }
+
     private validateLatestMessage(): void {
         if (this.latestMessageId?.length != VALIDATION.MESSAGE.ID_LENGTH) {
             throw new DomainError(
@@ -112,5 +116,9 @@ export class UserConversationModel extends BaseModel {
 
     public incrementNoUnredMessage(): void {
         this.noUnredMessage++;
+    }
+
+    public setLatestConversationUserViewAt(latestConversationUserViewAt: Date): void {
+        this.latestConversationUserViewAt = latestConversationUserViewAt;
     }
 }

@@ -44,6 +44,7 @@ export class SendMessageCommandHandle implements ICommandHandler<SendMessageComm
     let latestMessageId = null;
     let replyMessageId = command.replyMessageId.length > 0 ?
         (await this.messageRepository.findById(command.replyMessageId) ? command.replyMessageId : null) : null;
+    let firstOfAvgTime = await this.messageRepository.isFirstOfAvgTime(command.conversationId);
     const session = await this.connection.startSession();
     session.startTransaction();
 
@@ -52,7 +53,7 @@ export class SendMessageCommandHandle implements ICommandHandler<SendMessageComm
             let message = new MessageModel(
                 TypeMessageEnum.TEXT,
                 command.conversationId,
-                await this.messageRepository.isFirstOfAvgTime(command.conversationId),
+                firstOfAvgTime,
                 userSend.getId(),
                 null,
                 command.messageText,
@@ -60,14 +61,15 @@ export class SendMessageCommandHandle implements ICommandHandler<SendMessageComm
             );
             let newMessage = await this.messageRepository.saveMessage(message, session);
             latestMessageId = newMessage.getId();
+            firstOfAvgTime = false;
         }
 
         if (files.length > 0) {
-            let messages = files.map(async (file) => {
+            let messages = files.map(async (file, index) => {
                 return new MessageModel(
                     file.type,
                     command.conversationId,
-                    await this.messageRepository.isFirstOfAvgTime(command.conversationId),
+                    index == 0 ? firstOfAvgTime : false,
                     userSend.getId(),
                     null,
                     file.path,

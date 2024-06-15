@@ -1,6 +1,7 @@
-import { IsArray, IsNotEmpty, IsString, ArrayNotEmpty, ArrayMaxSize, Length, MaxLength } from "class-validator";
-import { Type } from "class-transformer";
+import { IsArray, IsNotEmpty, IsString, ArrayNotEmpty, ArrayMaxSize, Length, MaxLength, IsEnum } from "class-validator";
+import { Type, Transform } from "class-transformer";
 import { VALIDATION } from "src/const/validation";
+import { TypeConversationEnum } from "src/const/enums/conversation/type.enum.conversation";
 
 export class CreateConversationDTO {
     @IsString()
@@ -15,4 +16,8 @@ export class CreateConversationDTO {
     @IsString({ each: true })
     @Length(VALIDATION.USER.ID_LENGTH, VALIDATION.USER.ID_LENGTH, { each: true })
     listUserId: string[];
+
+    @IsEnum(TypeConversationEnum)
+    @Transform(({ value }) => parseInt(value))
+    type: number
 }

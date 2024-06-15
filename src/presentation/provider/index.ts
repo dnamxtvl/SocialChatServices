@@ -6,6 +6,8 @@ import { UserConversationRepository } from "src/infrastructure/repository/user-c
 import { ConversationRepository } from "src/infrastructure/repository/conversation.repository";
 import { MessageRepository } from "src/infrastructure/repository/message.repository";
 import { UserRepository } from "src/infrastructure/repository/user.repository";
+import { IUserBlockRepository } from "src/domain/chat/repository/user-block.repository";
+import { UserBlockRepository } from "src/infrastructure/repository/user-block.repository";
 
 export const UserRepositoryProvider = {
     provide: IUserRepository,
@@ -25,4 +27,9 @@ export const ConversationRepositoryProvider = {
 export const UserConversationRepositoryProvider = {
     provide: IUserConversationRepository,
     useClass: UserConversationRepository
+}
+
+export const UserBlockRepositoryProvider = {
+    provide: IUserBlockRepository,
+    useClass: UserBlockRepository
 }

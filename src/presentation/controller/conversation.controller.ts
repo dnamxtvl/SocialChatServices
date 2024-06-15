@@ -15,6 +15,7 @@ import { Response } from 'express';
 import { GetAuthUser } from '../decorator/auth.decorator';
 import { AuthUser } from 'src/@type/User';
 import { ListConversationByUserCommand } from 'src/application/command/list-conversaion-by-user.command';
+import { UserViewConversationCommand } from 'src/application/command/user-view-conversation.command';
 
 @Controller()
 export class ConversationController extends BaseController {
@@ -45,6 +46,7 @@ export class ConversationController extends BaseController {
           createConversationDTO.name,
           createConversationDTO.listUserId,
           user,
+          createConversationDTO.type,
           avatar?.path,
         )
       );
@@ -74,10 +76,13 @@ export class ConversationController extends BaseController {
   }
 
   @Get('/user/view-conversation/:id')
-  async getConversationById(@Res() res: Response, @GetAuthUser() user: AuthUser, @Param('id') id: string) {
+  async getConversationById(@Res() res: Response, @GetAuthUser() user: AuthUser, @Param('id') id: string, @Query('page') page?: number) {
     try {
-      
-      //return this.responseWithSuccess(res, listConversation);
+      const listMessage = await this.commandBus.execute(
+        new UserViewConversationCommand(user, id, page ?? APPLICATION_CONST.MESSAGE.FIRST_PAGE)
+      )
+
+      return this.responseWithSuccess(res, listMessage);
     } catch (error) {
       logger.error(error.stack);
 

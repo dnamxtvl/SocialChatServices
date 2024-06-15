@@ -6,6 +6,7 @@ import { UserConversation } from '../entities/user-conversation.entity';
 import { UserConversationModel } from 'src/domain/chat/models/conversation/user-conversation.model';
 import { APPLICATION_CONST } from 'src/const/application';
 import { BaseRepository } from './base';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class UserConversationRepository extends BaseRepository implements IUserConversationRepository {
@@ -72,6 +73,7 @@ export class UserConversationRepository extends BaseRepository implements IUserC
       no_unread_message: model.getNoUnredMessage(),
       disabled_notify: model.getDisabledNotify(),
       expired_disabled_notify_at: model.getExpiredDisabledNotifyAt(),
+      last_user_view_conversation_at: model.getLatestConversationUserViewAt(),
       created_at: model.getCreatedAt(),
       updated_at: model.getUpdatedAt(),
       deleted_at: null
@@ -106,8 +108,6 @@ export class UserConversationRepository extends BaseRepository implements IUserC
       .limit(APPLICATION_CONST.CONVERSATION.LIMIT_PAGINATE)
       .exec();
 
-      console.log(userConversations);
-
     return userConversations.length > 0
       ? userConversations.map((conversation) =>
           this.mappingUserConversationEntityToModel(conversation),
@@ -117,11 +117,11 @@ export class UserConversationRepository extends BaseRepository implements IUserC
 
   async bulkWriteUpsert(userConversations: UserConversationModel[], userSend: any, latestMessageId: string): Promise<void> {
     const userConversationsEntity = userConversations.map((model) => ({
-      _id: model.getId(),
+      _id: new Types.ObjectId(model.getId()),
       user_id: model.getUserId(),
       conversation: model.getConversationId(),
       last_message: latestMessageId,
-      latest_active_at: model.getLatestActivity(),
+      latest_active_at: model.getUserId() === userSend.id ? new Date() : model.getLatestActivity(),
       no_unread_message: model.getNoUnredMessage() + 1,
       disabled_notify: model.getDisabledNotify(),
       expired_disabled_notify_at: model.getExpiredDisabledNotifyAt(),

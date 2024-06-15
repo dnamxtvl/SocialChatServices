@@ -2,7 +2,7 @@ import { Module, Provider } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserRepositoryProvider, MessageRepositoryProvider, ConversationRepositoryProvider, UserConversationRepositoryProvider } from './provider';
+import { UserRepositoryProvider, MessageRepositoryProvider, ConversationRepositoryProvider, UserConversationRepositoryProvider, UserBlockRepositoryProvider } from './provider';
 import { MessageController } from './controller/message.controller';
 import { User } from 'src/infrastructure/entities/user.entity';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -23,18 +23,21 @@ import { ListConversationByUserCommandHandle } from 'src/application/command-han
 import { SendMessageCommandHandle } from 'src/application/command-handle/send-message.command-handle';
 import { BullModule } from '@nestjs/bullmq';
 import { ConversationQueue } from 'src/application/queues/conversation.queue';
+import { UserViewConversationCommandHandle } from 'src/application/command-handle/user-view-conversation.command-handle';
 
 const RepositoryProviders: Provider[] = [
   UserRepositoryProvider,
   MessageRepositoryProvider,
   ConversationRepositoryProvider,
   UserConversationRepositoryProvider,
+  UserBlockRepositoryProvider
 ];
 
 export const CommandHandler = [
   CreateConversationCommandHandle,
   ListConversationByUserCommandHandle,
-  SendMessageCommandHandle
+  SendMessageCommandHandle,
+  UserViewConversationCommandHandle
 ];
 
 export const QueueHandle = [
@@ -43,13 +46,6 @@ export const QueueHandle = [
 
 @Module({
   imports: [
-    // BullModule.forRoot({
-    //   redis: {
-    //     host: process.env.REDIS_HOST,
-    //     port: process.env.REDIS_PORT as any,
-    //     password: process.env.REDIS_PASSWORD
-    //   },
-    // }),
     BullModule.forRootAsync({
 			useFactory: async () => ({
 				connection: {
@@ -61,7 +57,6 @@ export const QueueHandle = [
 		}),
     BullModule.registerQueue({
       name: 'conversation',
-      // prefix: 'chat',
     }),
     MulterModule.register({
       dest: './public/images',

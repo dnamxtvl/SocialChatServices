@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, In, Not, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { IUserRepository } from 'src/domain/chat/repository/user.repository';
 import { UserModel } from 'src/domain/chat/models/user/user.model';
 import { EmailVO } from 'src/domain/chat/value-objects/email.vo';
 import { UserStatusActiveEnum } from 'src/const/enums/user/status-active';
+import { UserStatusEnum } from 'src/const/enums/user/status';
 
 
 @Injectable()
@@ -29,6 +30,26 @@ export class UserRepository extends Repository<User> implements IUserRepository 
     })
 
     return users.length > 0 ? users.map(user => this.mappingUserEntityToModel(user)) : null
+  }
+
+  async findUserActive(userId: string): Promise<UserModel | null> {
+    const user = await this.manager.getRepository(User).findOne({
+      where: [
+        {
+          id: userId,
+          status: Not(
+            In([
+              UserStatusEnum.BLOCK_MESSAGE,
+              UserStatusEnum.CLOSE_ACCOUNT,
+              UserStatusEnum.INACTIVE,
+            ]),
+          ),
+        },
+        { deleted_at: Not(null) },
+      ],
+    });
+
+    return user ? this.mappingUserEntityToModel(user) : null
   }
 
   private mappingUserEntityToModel(user: User): UserModel {
