@@ -79,7 +79,7 @@ export class MessageRepository implements IMessageRepository {
       message.parent_id ? message.parent_id.toString() : null,
       message.device_id,
       message.ip_send,
-      message.createdAt,
+      message.created_at,
     )
   }
 }

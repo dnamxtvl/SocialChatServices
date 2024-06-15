@@ -72,13 +72,13 @@ export class Message {
   first_of_avg_time: boolean;
 
   @Prop({ default: Date.now })
-  createdAt: Date;
+  created_at: Date;
 
   @Prop({ default: Date.now })
-  updatedAt: Date;
+  updated_at: Date;
 
   @Prop({ default: null })
-  deletedAt: Date | null;
+  deleted_at: Date | null;
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);

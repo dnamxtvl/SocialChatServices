@@ -40,13 +40,13 @@ export class Conversation {
   organization_id: number;
 
   @Prop({ default: moment.tz(new Date(), 'Asia/Ho_Chi_Minh') })
-  createdAt: Date;
+  created_at: Date;
 
   @Prop({ default: Date.now })
-  updatedAt: Date;
+  updated_at: Date;
 
   @Prop({ default: null })
-  deletedAt: Date | null;
+  deleted_at: Date | null;
 }
 
 export const ConversationSchema = SchemaFactory.createForClass(Conversation);

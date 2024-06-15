@@ -58,8 +58,8 @@ export class ConversationRepository implements IConversationRepository {
       conversation.last_message ? conversation.last_message._id.toString() : null,
       conversation._id.toString(),
       conversation.avatar,
-      conversation.createdAt,
-      conversation.updatedAt,
+      conversation.created_at,
+      conversation.updated_at,
     );
   }
 }
