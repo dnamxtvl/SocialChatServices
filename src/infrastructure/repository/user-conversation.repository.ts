@@ -65,20 +65,36 @@ export class UserConversationRepository extends BaseRepository implements IUserC
   }
 
   async saveUserConversation(model: UserConversationModel): Promise<UserConversationModel> {
-    const userConversation = new this.userConversation({
-      user_id: model.getUserId(),
-      conversation: model.getConversationId(),
-      last_message: model.getLatestMessageId(),
-      latest_active_at: model.getLatestActivity(),
-      no_unread_message: model.getNoUnredMessage(),
-      disabled_notify: model.getDisabledNotify(),
-      expired_disabled_notify_at: model.getExpiredDisabledNotifyAt(),
-      last_user_view_conversation_at: model.getLatestConversationUserViewAt(),
-      created_at: model.getCreatedAt(),
-      updated_at: model.getUpdatedAt(),
-      deleted_at: null
-    });
-    const newUserConervsation = await userConversation.save();
+    let newUserConervsation;
+    if (!model.getId()) {
+      const userConversation = new this.userConversation({
+        user_id: model.getUserId(),
+        conversation: model.getConversationId(),
+        last_message: model.getLatestMessageId(),
+        latest_active_at: model.getLatestActivity(),
+        no_unread_message: model.getNoUnredMessage(),
+        disabled_notify: model.getDisabledNotify(),
+        expired_disabled_notify_at: model.getExpiredDisabledNotifyAt(),
+        last_user_view_conversation_at: model.getLatestConversationUserViewAt(),
+      });
+      newUserConervsation = await userConversation.save(); 
+    } else {
+      newUserConervsation = await this.userConversation
+        .findOneAndUpdate(
+          { _id: model.getId() },
+          {
+            last_message: model.getLatestMessageId(),
+            latest_active_at: model.getLatestActivity(),
+            no_unread_message: model.getNoUnredMessage(),
+            disabled_notify: model.getDisabledNotify(),
+            expired_disabled_notify_at: model.getExpiredDisabledNotifyAt(),
+            last_user_view_conversation_at:
+              model.getLatestConversationUserViewAt(),
+          },
+          { new: true },
+        )
+        .exec();
+    }
 
     return this.mappingUserConversationEntityToModel(newUserConervsation);
   }
