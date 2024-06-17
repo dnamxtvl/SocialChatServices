@@ -65,38 +65,28 @@ export class UserConversationRepository extends BaseRepository implements IUserC
   }
 
   async saveUserConversation(model: UserConversationModel): Promise<UserConversationModel> {
-    let newUserConervsation;
+    const userConversationData = {
+      user_id: model.getUserId(),
+      conversation: model.getConversationId(),
+      last_message: model.getLatestMessageId(),
+      latest_active_at: model.getLatestActivity(),
+      no_unread_message: model.getNoUnredMessage(),
+      disabled_notify: model.getDisabledNotify(),
+      expired_disabled_notify_at: model.getExpiredDisabledNotifyAt(),
+      last_user_view_conversation_at: model.getLatestConversationUserViewAt(),
+    };
+
+    let newUserConversation;
     if (!model.getId()) {
-      const userConversation = new this.userConversation({
-        user_id: model.getUserId(),
-        conversation: model.getConversationId(),
-        last_message: model.getLatestMessageId(),
-        latest_active_at: model.getLatestActivity(),
-        no_unread_message: model.getNoUnredMessage(),
-        disabled_notify: model.getDisabledNotify(),
-        expired_disabled_notify_at: model.getExpiredDisabledNotifyAt(),
-        last_user_view_conversation_at: model.getLatestConversationUserViewAt(),
-      });
-      newUserConervsation = await userConversation.save(); 
+      const userConversation = new this.userConversation(userConversationData);
+      newUserConversation = await userConversation.save();
     } else {
-      newUserConervsation = await this.userConversation
-        .findOneAndUpdate(
-          { _id: model.getId() },
-          {
-            last_message: model.getLatestMessageId(),
-            latest_active_at: model.getLatestActivity(),
-            no_unread_message: model.getNoUnredMessage(),
-            disabled_notify: model.getDisabledNotify(),
-            expired_disabled_notify_at: model.getExpiredDisabledNotifyAt(),
-            last_user_view_conversation_at:
-              model.getLatestConversationUserViewAt(),
-          },
-          { new: true },
-        )
-        .exec();
+      const filter = { _id: model.getId() };
+      const update = { $set: userConversationData };
+      newUserConversation = await this.userConversation.findOneAndUpdate(filter, update, { new: true }).exec();
     }
 
-    return this.mappingUserConversationEntityToModel(newUserConervsation);
+    return this.mappingUserConversationEntityToModel(newUserConversation);
   }
 
   async insertUserConversation(models: UserConversationModel[], session: ClientSession): Promise<void> {
