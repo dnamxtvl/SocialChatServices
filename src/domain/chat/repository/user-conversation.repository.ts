@@ -28,7 +28,7 @@ export abstract class IUserConversationRepository {
   listUserConversationPaginate: (
     userId: string,
     page: number
-  ) => Promise<UserConversationModel[] | null>;
+  ) => Promise<UserConversationModel[] | []>;
 
   bulkWriteUpsert : (
     models: UserConversationModel[], userSend: any, latestMessageId: string

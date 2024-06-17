@@ -5,7 +5,6 @@ import { ApplicationError } from "../exceptions";
 import { HttpStatus } from "@nestjs/common";
 import { EXCEPTION_CODE_APPLICATION } from "../enums/exception-code.enum";
 import { IConversationRepository } from "src/domain/chat/repository/conversation.repository";
-import { IUserRepository } from "src/domain/chat/repository/user.repository";
 import { addTypeMessageForFiles } from "src/helpers/message.helper";
 import { MessageModel } from "src/domain/chat/models/message/message.model";
 import { TypeMessageEnum } from "src/const/enums/message/type";
@@ -21,12 +20,11 @@ export class SendMessageCommandHandle implements ICommandHandler<SendMessageComm
     private readonly userConversationRepository: IUserConversationRepository,
     private readonly conversationRepository: IConversationRepository,
     private readonly messageRepository: IMessageRepository,
-    private readonly userRepository: IUserRepository,
     @InjectConnection() private readonly connection: Connection,
     @InjectQueue('conversation') private conversationQueue: Queue
   ) {}
 
-  async execute(command: SendMessageCommand) {
+  async execute(command: SendMessageCommand): Promise<void> {
     const userSend = command.mappingUserEntityToModel();
     let conversaion = await this.conversationRepository.findById(command.conversationId);
     if (conversaion === null) {

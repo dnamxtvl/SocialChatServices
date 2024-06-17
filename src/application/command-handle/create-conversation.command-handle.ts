@@ -27,7 +27,7 @@ export class CreateConversationCommandHandle implements ICommandHandler<CreateCo
     @InjectConnection() private readonly connection: Connection
   ) {}
 
-  async execute(command: CreateConversationCommand) {
+  async execute(command: CreateConversationCommand): Promise<void> {
     let listUserId = Array.from(new Set(command.listUserId));
     if (listUserId.length < VALIDATION.CONVERSATION.MIN_MEMBER) throw new ApplicationError(
       'Danh sách phải có ít nhất 2 user!',
@@ -83,7 +83,7 @@ export class CreateConversationCommandHandle implements ICommandHandler<CreateCo
         TypeMessageEnum.NOTIFY, newConversation.getId(), false, command.authUser.id, null, 'Nhóm mới!', null, null
       );
       let firstMessageConversation = await this.messageRepository.saveMessage(firstMessage, session);
-      let conversations = listUserId.map((userId) => {
+      let conversations = listUserId.map((userId: string) => {
         return new UserConversationModel(
           userId, newConversation.getId(), firstMessageConversation.getId(), now(), 0, false, null
         );

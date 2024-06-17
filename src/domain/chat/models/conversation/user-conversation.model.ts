@@ -121,4 +121,8 @@ export class UserConversationModel extends BaseModel {
     public setLatestConversationUserViewAt(latestConversationUserViewAt: Date): void {
         this.latestConversationUserViewAt = latestConversationUserViewAt;
     }
+
+    public readConversation(): void {
+        this.noUnredMessage = 0;
+    }
 }

@@ -47,22 +47,41 @@ export class BaseRepository {
           userConversation.user_id,
           userConversation.conversation._id.toString(),
           userConversation.last_message._id.toString(),
-          moment.tz(userConversation.latest_active_at, 'Asia/Ho_Chi_Minh').format("YYYY-MM-DD HH:mm:ss"),
+          moment
+            .tz(userConversation.latest_active_at, 'Asia/Ho_Chi_Minh')
+            .format('YYYY-MM-DD HH:mm:ss'),
           userConversation.no_unread_message,
           userConversation.disabled_notify,
-          userConversation.expired_disabled_notify_at ? moment.tz(userConversation.expired_disabled_notify_at, 'Asia/Ho_Chi_Minh').format("YYYY-MM-DD HH:mm:ss") : null,
+          userConversation.expired_disabled_notify_at
+            ? moment
+                .tz(
+                  userConversation.expired_disabled_notify_at,
+                  'Asia/Ho_Chi_Minh',
+                )
+                .format('YYYY-MM-DD HH:mm:ss')
+            : null,
           userConversation.created_at,
-          moment.tz(userConversation.updated_at, 'Asia/Ho_Chi_Minh').format("YYYY-MM-DD HH:mm:ss"),
+          moment
+            .tz(userConversation.updated_at, 'Asia/Ho_Chi_Minh')
+            .format('YYYY-MM-DD HH:mm:ss'),
           userConversation._id.toString(),
-          userConversation.last_message instanceof Types.ObjectId ? null : this.mappingMessageEntityToModel(userConversation.last_message),
-          userConversation.latest_user_send ? new UserSendVO(
-            userConversation.latest_user_send.id,
-            userConversation.latest_user_send.first_name,
-            userConversation.latest_user_send.last_name,
-            new EmailVO(userConversation.latest_user_send.email),
-            userConversation.latest_user_send.avatar,
-          ) : null,
-          userConversation.conversation.created_at ? this.mappingConversationEntityToModel(userConversation.conversation) : null,
+          userConversation.last_message instanceof Types.ObjectId
+            ? null
+            : this.mappingMessageEntityToModel(userConversation.last_message),
+          userConversation.latest_user_send
+            ? new UserSendVO(
+                userConversation.latest_user_send.id,
+                userConversation.latest_user_send.first_name,
+                userConversation.latest_user_send.last_name,
+                new EmailVO(userConversation.latest_user_send.email),
+                userConversation.latest_user_send.avatar,
+              )
+            : null,
+          userConversation.conversation.created_at
+            ? this.mappingConversationEntityToModel(
+                userConversation.conversation,
+              )
+            : null,
         );
       }
 }

@@ -6,12 +6,14 @@ import { ApplicationError } from "../exceptions";
 import { HttpStatus } from "@nestjs/common";
 import { EXCEPTION_CODE_APPLICATION } from "../enums/exception-code.enum";
 import { TypeConversationEnum } from "src/const/enums/conversation/type.enum.conversation";
-import { VALIDATION } from "src/const/validation";
 import { IUserRepository } from "src/domain/chat/repository/user.repository";
 import { IUserBlockRepository } from "src/domain/chat/repository/user-block.repository";
 import { IMessageRepository } from "src/domain/chat/repository/message.repository";
 import { now } from "mongoose";
-import { MessageDetail } from "src/@type/Message";
+import { UserConversationModel } from "src/domain/chat/models/conversation/user-conversation.model";
+import { ResultUserViewConversation } from "src/@type/Message";
+import { MessageModel } from "src/domain/chat/models/message/message.model";
+import { UserModel } from "src/domain/chat/models/user/user.model";
 
 @CommandHandler(UserViewConversationCommand)
 export class UserViewConversationCommandHandle implements ICommandHandler<UserViewConversationCommand> {
@@ -23,7 +25,7 @@ export class UserViewConversationCommandHandle implements ICommandHandler<UserVi
     private readonly messageRepository: IMessageRepository
   ) {}
 
-  async execute(command: UserViewConversationCommand): Promise<MessageDetail[]> {
+  async execute(command: UserViewConversationCommand): Promise<ResultUserViewConversation> {
     const authUser = command.mappingUserEntityToModel();
     const conversation = await this.conversationRepository.findById(command.conversationId);
     if (!conversation) throw new ApplicationError(
@@ -34,17 +36,9 @@ export class UserViewConversationCommandHandle implements ICommandHandler<UserVi
 
     authUser.checkIsSameOrganizationWithUser(conversation.getOrganizationId());
     const userOfConversation = await this.userConversationRepository.findByConversationId(command.conversationId);
+    let authUserConversation = userOfConversation.length ? userOfConversation.find((user: UserConversationModel) => user.getUserId() == authUser.getId()) : null;
 
-    if (userOfConversation.length == 0) {
-      throw new ApplicationError(
-        'Cuộc trò chuyện không hợp lệ!',
-        HttpStatus.NOT_FOUND,
-        EXCEPTION_CODE_APPLICATION.USER_NOT_IN_CONVERSATION_WHEN_VIEW_CONVERSATION,
-      );
-    }
-
-    let authUserConversation = userOfConversation.filter((user) => user.getUserId() == authUser.getId())
-    if (authUserConversation.length == 0) {
+    if (!authUserConversation) {
       throw new ApplicationError(
         'Bạn đã bị xóa khỏi cuộc trò chuyện!',
         HttpStatus.NOT_FOUND,
@@ -56,51 +50,43 @@ export class UserViewConversationCommandHandle implements ICommandHandler<UserVi
     let userPartnerBlocked = false;
 
     if (conversation.getType() == TypeConversationEnum.SINGLE) {
-      if (userOfConversation.length != VALIDATION.CONVERSATION.MIN_MEMBER) {
-        throw new ApplicationError(
-          'Cuộc trò chuyện không hợp lệ!',
-          HttpStatus.NOT_FOUND,
-          EXCEPTION_CODE_APPLICATION.INVALID_TYPE_CONVERSATION
-        )
-      }
-
-      const userPartner = userOfConversation.filter((user) => user.getUserId() != authUser.getId())[0];
+      conversation.checkIsValidMemberOfSingleConversation(userOfConversation);
+      const userPartner = userOfConversation.find((user: UserConversationModel) => user.getUserId() != authUser.getId());
       userPartnerActive = await this.userRepository.findUserActive(userPartner.getUserId()) ? true : false;
       userPartnerBlocked = await this.userBlockRepository.isUserBlocked(authUser, userPartner.getUserId());
     }
 
-    let authUserConversationUpdate = authUserConversation[0];
-    authUserConversationUpdate.setLatestConversationUserViewAt(now());
-    await this.userConversationRepository.saveUserConversation(authUserConversationUpdate);
+    authUserConversation.setLatestConversationUserViewAt(now());
+    authUserConversation.readConversation();
+    await this.userConversationRepository.saveUserConversation(authUserConversation);
 
     const listMessage = await this.messageRepository.listMessagePaginate(command.conversationId, command.page);
-    const listUserSendMessage = await this.userRepository.findByManyIds(listMessage.map((message) => message.getUserSendId()));
+    const listUserSendMessage = await this.userRepository.findByManyIds(userOfConversation.map((user: UserConversationModel) => user.getUserId()));
+    const listMessageAfterMapping = listMessage.map((message: MessageModel) => {
+      let userSend = listUserSendMessage.find((user: UserModel) => user.getId() == message.getUserSendId());
+      let profile = {
+        id: userSend.getId(),
+        firstName: userSend.getFirstName(),
+        lastName: userSend.getLastName(),
+        avatar: userSend.getAvatar(),
+      }
 
-    return listMessage.map((message) => {
-      let userSend = listUserSendMessage.filter((user) => user.getId() == message.getUserSendId())[0];
       return conversation.getType() == TypeConversationEnum.GROUP
-        ? {
-            message: message,
-            profile: {
-              id: userSend.getId(),
-              first_name: userSend.getFirstName(),
-              last_name: userSend.getLastName(),
-              avatar: userSend.getAvatar(),
-            },
-            conversation: conversation,
-          }
+        ? { message: message, profile: profile }
         : {
             message: message,
-            profile: {
-              id: userSend.getId(),
-              first_name: userSend.getFirstName(),
-              last_name: userSend.getLastName(),
-              avatar: userSend.getAvatar(),
-            },
-            conversation: conversation,
+            profile: profile,
             userPartnerActive: userPartnerActive,
             userPartnerBlocked: userPartnerBlocked,
           };
-    });
+    }).reverse();
+
+    return {
+      conversation: {
+        info: conversation,
+        listUser: listUserSendMessage,
+      },
+      listMessage: listMessageAfterMapping,
+    }
   }
 }

@@ -97,7 +97,7 @@ export class UserConversationRepository extends BaseRepository implements IUserC
     await this.userConversation.insertMany(userConversations, { session });
   }
 
-  async listUserConversationPaginate(userId: string, page: number): Promise<UserConversationModel[] | null> {
+  async listUserConversationPaginate(userId: string, page: number): Promise<UserConversationModel[] | []> {
     const userConversations = await this.userConversation
       .find({
         user_id: userId

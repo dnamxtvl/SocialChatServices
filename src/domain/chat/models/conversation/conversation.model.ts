@@ -6,6 +6,7 @@ import { ExceptionCode } from '../../enums/exception-code';
 import { HttpStatus } from '@nestjs/common';
 import { UserModel } from '../user/user.model';
 import { EXCEPTION_CODE_APPLICATION } from 'src/application/enums/exception-code.enum';
+import { UserConversationModel } from './user-conversation.model';
 
 export class ConversationModel extends BaseModel {
     constructor(
@@ -98,5 +99,15 @@ export class ConversationModel extends BaseModel {
                 EXCEPTION_CODE_APPLICATION.USER_NOT_IN_ORGANIZATION
             );
         }
+    }
+
+    public checkIsValidMemberOfSingleConversation(userOfConversation: UserConversationModel[]): void {
+        if (userOfConversation.length != VALIDATION.CONVERSATION.MIN_MEMBER) {
+            throw new DomainError(
+              'Cuộc trò chuyện không hợp lệ!',
+              HttpStatus.NOT_FOUND,
+              EXCEPTION_CODE_APPLICATION.INVALID_TYPE_CONVERSATION
+            )
+          }
     }
 }
