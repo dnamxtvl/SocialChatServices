@@ -1,6 +1,5 @@
 import { UnitRoom } from "./Organization";
 import { ConversationModel } from "src/domain/chat/models/conversation/conversation.model";
-import { UserConversationModel } from "src/domain/chat/models/conversation/user-conversation.model";
 import { MessageModel } from "src/domain/chat/models/message/message.model";
 import { UserModel } from "src/domain/chat/models/user/user.model";
 

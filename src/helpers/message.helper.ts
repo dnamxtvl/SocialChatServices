@@ -9,7 +9,7 @@ export const addTypeMessageForFiles = (files: Express.Multer.File[]) => {
         if (file.mimetype.includes('image')) {
             imagesPath.push(file.path);
         } else if (file.mimetype.includes('video')) {
-            videoPath.push(file);
+            videoPath.push(file.path);
         } else {
             allFilesAfterConvert.push({
                 path: file.path,
@@ -21,14 +21,14 @@ export const addTypeMessageForFiles = (files: Express.Multer.File[]) => {
     if (imagesPath.length > 0) {
         allFilesAfterConvert.push({
             type: imagesPath.length > 1 ? TypeMessageEnum.IMAGES : TypeMessageEnum.IMAGE,
-            path: imagesPath
+            path: imagesPath.length > 1 ? imagesPath: imagesPath[0]
         })
     }
 
     if (videoPath.length > 0) {
         allFilesAfterConvert.push({
             type: videoPath.length > 1 ? TypeMessageEnum.VIDEOS : TypeMessageEnum.VIDEO,
-            path: videoPath
+            path: videoPath.length > 1 ? videoPath : videoPath[0]
         })
     }
 

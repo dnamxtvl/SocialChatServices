@@ -6,6 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, ClientSession } from 'mongoose';
 import { APPLICATION_CONST } from 'src/const/application';
 import { BaseRepository } from './base';
+import { TypeMessageEnum } from 'src/const/enums/message/type';
 
 
 @Injectable()
@@ -74,6 +75,7 @@ export class MessageRepository extends BaseRepository implements IMessageReposit
     const messages = await this.message
       .find({
         conversation: conversationId,
+        type: {$nin: [TypeMessageEnum.NOTIFY, TypeMessageEnum.EMOJI]}
       })
       .limit(APPLICATION_CONST.MESSAGE.LIMIT_PAGINATE)
       .skip(APPLICATION_CONST.MESSAGE.LIMIT_PAGINATE * (page - 1))
