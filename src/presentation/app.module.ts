@@ -24,6 +24,7 @@ import { SendMessageCommandHandle } from 'src/application/command-handle/send-me
 import { BullModule } from '@nestjs/bullmq';
 import { ConversationQueue } from 'src/application/queues/conversation.queue';
 import { UserViewConversationCommandHandle } from 'src/application/command-handle/user-view-conversation.command-handle';
+import { MessageGateway } from 'src/application/gateway/message.gateway';
 
 const RepositoryProviders: Provider[] = [
   UserRepositoryProvider,
@@ -32,6 +33,10 @@ const RepositoryProviders: Provider[] = [
   UserConversationRepositoryProvider,
   UserBlockRepositoryProvider
 ];
+
+const GateWay = [
+  MessageGateway
+]
 
 export const CommandHandler = [
   CreateConversationCommandHandle,
@@ -120,7 +125,8 @@ export const QueueHandle = [
   providers: [
     ...RepositoryProviders,
     ...CommandHandler,
-    ...QueueHandle
+    ...QueueHandle,
+    ...GateWay
   ],
   exports: [...RepositoryProviders, ...CommandHandler],
 })
