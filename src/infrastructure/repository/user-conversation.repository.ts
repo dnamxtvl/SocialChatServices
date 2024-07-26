@@ -127,7 +127,7 @@ export class UserConversationRepository extends BaseRepository implements IUserC
       user_id: model.getUserId(),
       conversation: model.getConversationId(),
       last_message: latestMessageId,
-      latest_active_at: model.getUserId() === userSend.id ? new Date() : model.getLatestActivity(),
+      latest_active_at: new Date(),
       no_unread_message: model.getNoUnredMessage() + 1,
       disabled_notify: model.getDisabledNotify(),
       expired_disabled_notify_at: model.getExpiredDisabledNotifyAt(),

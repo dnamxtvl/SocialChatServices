@@ -5,6 +5,7 @@ import { isURL } from 'class-validator';
 import { HttpStatus } from '@nestjs/common';
 import { DomainError } from '../../exceptions';
 import { ExceptionCode } from '../../enums/exception-code';
+import { FileContent } from 'src/@type/Message';
 
 export class MessageModel extends BaseModel {
   constructor(
@@ -13,7 +14,7 @@ export class MessageModel extends BaseModel {
     private readonly firstOfAvgTime: boolean,
     private readonly userSendId: string,
     private readonly id?: string,
-    private readonly content?: string | string[],
+    private readonly content?: string | Array<FileContent> | FileContent,
     private readonly parentId?: string,
     private readonly latestUserSeenId?: string,
     private readonly deviceId?: string,
@@ -28,7 +29,7 @@ export class MessageModel extends BaseModel {
     return this.id;
   }
 
-  public getContent(): string | string[] {
+  public getContent(): string | Array<FileContent> | FileContent {
     return this.content;
   }
 

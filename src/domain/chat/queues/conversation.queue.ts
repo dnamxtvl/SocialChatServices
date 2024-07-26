@@ -3,6 +3,7 @@ import { Job } from 'bullmq';
 import { Processor, OnWorkerEvent, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { IUserConversationRepository } from 'src/domain/chat/repository/user-conversation.repository';
+import { v4 as uuidv4 } from 'uuid';
 
 @Processor('conversation', {
     concurrency: 10

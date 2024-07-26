@@ -12,5 +12,7 @@ export const APPLICATION_CONST = {
         FIRST_PAGE: 1,
         TIME_FIRST_OF_AVG: 15 * 60 * 1000,
         LIMIT_PAGINATE: 50,
-    }
+    },
+    AWS_STREAM_CHUNK_SIZE:5242880,
+    AWS_UPLOAD_QUEUE_SIZE:4
 }

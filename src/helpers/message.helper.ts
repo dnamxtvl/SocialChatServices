@@ -1,36 +1,29 @@
-import path from "path";
+import { FileObject } from "src/@type/Message";
 import { TypeMessageEnum } from "src/const/enums/message/type"
-export const addTypeMessageForFiles = (files: Express.Multer.File[]) => {
-    let imagesPath = [];
-    let videoPath = [];
-    let allFilesAfterConvert = [];
+export const getTypeMessageForFile = (fileMime: string) => {
+    if (fileMime.includes('image')) {
+        return TypeMessageEnum.IMAGE
+    }
+    if (fileMime.includes('video')) {
+        return TypeMessageEnum.VIDEO
+    }
+    if (fileMime.includes('audio')) {
+        return TypeMessageEnum.AUDIO
+    }
 
-    for (let file of files) {
-        if (file.mimetype.includes('image')) {
-            imagesPath.push(file.path);
-        } else if (file.mimetype.includes('video')) {
-            videoPath.push(file.path);
-        } else {
-            allFilesAfterConvert.push({
-                path: file.path,
-                type: file.mimetype.includes('audio') ? TypeMessageEnum.AUDIO : TypeMessageEnum.FILE
-            })
+    return TypeMessageEnum.FILE
+}
+
+export const sortedFiles = (files: FileObject[]) => {
+    return files.sort((a, b) => {
+        const isImageA = a.mimetype.startsWith('image/');
+        const isImageB = b.mimetype.startsWith('image/');
+        if (isImageA && !isImageB) {
+          return -1;
         }
-    }
-
-    if (imagesPath.length > 0) {
-        allFilesAfterConvert.push({
-            type: imagesPath.length > 1 ? TypeMessageEnum.IMAGES : TypeMessageEnum.IMAGE,
-            path: imagesPath.length > 1 ? imagesPath: imagesPath[0]
-        })
-    }
-
-    if (videoPath.length > 0) {
-        allFilesAfterConvert.push({
-            type: videoPath.length > 1 ? TypeMessageEnum.VIDEOS : TypeMessageEnum.VIDEO,
-            path: videoPath.length > 1 ? videoPath : videoPath[0]
-        })
-    }
-
-    return allFilesAfterConvert;
+        if (!isImageA && isImageB) {
+          return 1;
+        }
+        return 0;
+    });
 }

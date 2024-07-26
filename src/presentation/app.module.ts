@@ -25,6 +25,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { ConversationQueue } from 'src/application/queues/conversation.queue';
 import { UserViewConversationCommandHandle } from 'src/application/command-handle/user-view-conversation.command-handle';
 import { MessageGateway } from 'src/application/gateway/message.gateway';
+import { UploadFileCommandHandle } from 'src/application/command-handle/upload-file-command-handle';
 
 const RepositoryProviders: Provider[] = [
   UserRepositoryProvider,
@@ -42,7 +43,8 @@ export const CommandHandler = [
   CreateConversationCommandHandle,
   ListConversationByUserCommandHandle,
   SendMessageCommandHandle,
-  UserViewConversationCommandHandle
+  UserViewConversationCommandHandle,
+  UploadFileCommandHandle,
 ];
 
 export const QueueHandle = [
@@ -63,9 +65,9 @@ export const QueueHandle = [
     BullModule.registerQueue({
       name: 'conversation',
     }),
-    MulterModule.register({
-      dest: './public/images',
-    }),
+    // MulterModule.register({
+    //   dest: './public/images',
+    // }),
     CqrsModule,
     ThrottlerModule.forRoot([{
       ttl: process.env.APPLICATION_TTL as any,
