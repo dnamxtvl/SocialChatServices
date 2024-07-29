@@ -54,7 +54,7 @@ export class MessageController extends BaseController {
     @Res() res: Response,
     @Param('conversationId') conversationId: string,
     @GetAuthUser() user: AuthUser,
-    @Body('fileUUIds') fileUUIds: any,
+    @Body('fileUUIds') fileUUIds: string,
     @Body('message') message?: string,
     @Body('messageUUId') messageUUId?: string,
     @Body('replyMessageId') replyMessageId?: string,

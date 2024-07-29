@@ -22,6 +22,7 @@ export class SendMessageCommand {
         this.validateFileLength();
         this.validateFilesSize();
         this.validateFileUUIdsLength();
+        this.validateReplyMessageId();
     }
 
     private validateMessageContent() {
@@ -100,5 +101,15 @@ export class SendMessageCommand {
           this.user.status_active == UserStatusActiveEnum.ONLINE,
           this.user.created_at
         )
+    }
+
+    private validateReplyMessageId() {
+        if (this.replyMessageId && (this.replyMessageId.length != VALIDATION.MESSAGE.ID_LENGTH)) {
+            throw new ApplicationError(
+                'Reply message không hợp lệ!',
+                HttpStatus.BAD_REQUEST,
+                ExceptionCode.INVALID_REPLY_MESSAGE
+            )
+        }
     }
   }

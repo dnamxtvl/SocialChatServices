@@ -6,6 +6,7 @@ import { HttpStatus } from '@nestjs/common';
 import { DomainError } from '../../exceptions';
 import { ExceptionCode } from '../../enums/exception-code';
 import { FileContent } from 'src/@type/Message';
+import { ConversationModel } from '../conversation/conversation.model';
 
 export class MessageModel extends BaseModel {
   constructor(
@@ -103,6 +104,16 @@ export class MessageModel extends BaseModel {
       //     );
       //   }
       // })
+    }
+  }
+
+  public checkMessageReplyBelongToConversation(conversaion: ConversationModel): void {
+    if (this.conversationId != conversaion.getId()) {
+      throw new DomainError(
+        'Tin nhán reply không thuộc về cuộc trò chuyện ' + conversaion.getName() + '!',
+        HttpStatus.FORBIDDEN,
+        ExceptionCode.INVALID_REPLY_MESSAGE
+      )
     }
   }
 }

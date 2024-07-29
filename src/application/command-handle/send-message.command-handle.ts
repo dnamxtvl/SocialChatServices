@@ -50,6 +50,8 @@ export class SendMessageCommandHandle implements ICommandHandler<SendMessageComm
           EXCEPTION_CODE_APPLICATION.MESSAGE__REPLY_NOT_FOUND_WHEN_SEND_MESSAGE
         );
       }
+
+      replyMessage.checkMessageReplyBelongToConversation(conversaion);
     }
 
     let latestMessage = null;

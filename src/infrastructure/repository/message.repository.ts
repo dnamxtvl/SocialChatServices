@@ -18,7 +18,7 @@ export class MessageRepository extends BaseRepository implements IMessageReposit
   async findById(id: string): Promise<MessageModel | null> {
     const message = await this.message
       .findById({
-        id: id,
+        _id: id,
       })
       .exec();
 
