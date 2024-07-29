@@ -60,7 +60,7 @@ export class UserViewConversationCommandHandle implements ICommandHandler<UserVi
     authUserConversation.readConversation();
     await this.userConversationRepository.saveUserConversation(authUserConversation);
 
-    const listMessage = await this.messageRepository.listMessagePaginate(command.conversationId, command.page);
+    const listMessage = await this.messageRepository.listMessagePaginate(command.conversationId, command.skip);
     const listUserSendMessage = await this.userRepository.findByManyIds(userOfConversation.map((user: UserConversationModel) => user.getUserId()));
     const listMessageAfterMapping = listMessage.map((message: MessageModel) => {
       let userSend = listUserSendMessage.find((user: UserModel) => user.getId() == message.getUserSendId());
@@ -79,7 +79,7 @@ export class UserViewConversationCommandHandle implements ICommandHandler<UserVi
             userPartnerActive: userPartnerActive,
             userPartnerBlocked: userPartnerBlocked,
           };
-    }).reverse();
+    });
 
     return {
       conversation: {

@@ -11,7 +11,7 @@ export class UserViewConversationCommand {
     constructor(
       public readonly user: AuthUser,
       public readonly conversationId: string,
-      public readonly page: number
+      public readonly skip: number
     ) {
         this.validateConversationId();
     }

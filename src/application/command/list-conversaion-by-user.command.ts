@@ -1,6 +1,6 @@
 export class ListConversationByUserCommand {
     constructor(
       public readonly userId: string,
-      public readonly page: number
+      public readonly skip: number
     ) {}
   }

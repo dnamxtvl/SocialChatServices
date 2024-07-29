@@ -61,10 +61,10 @@ export class ConversationController extends BaseController {
 
   @Get('/user/conversation/list/')
   @UsePipes(new ValidationPipe({ transform: true }))
-  async getConversation(@Res() res: Response, @GetAuthUser() user: AuthUser, @Query('page') page?: number) {
+  async getConversation(@Res() res: Response, @GetAuthUser() user: AuthUser, @Query('skip') skip?: number) {
     try {
       const listConversation = await this.commandBus.execute(
-        new ListConversationByUserCommand(user.id, page ?? APPLICATION_CONST.CONVERSATION.FIRST_PAGE)
+        new ListConversationByUserCommand(user.id, skip ?? APPLICATION_CONST.CONVERSATION.DEFAULT_SKIP)
       )
 
       return this.responseWithSuccess(res, listConversation);
@@ -76,10 +76,10 @@ export class ConversationController extends BaseController {
   }
 
   @Get('/user/view-conversation/:id')
-  async getConversationById(@Res() res: Response, @GetAuthUser() user: AuthUser, @Param('id') id: string, @Query('page') page?: number) {
+  async getConversationById(@Res() res: Response, @GetAuthUser() user: AuthUser, @Param('id') id: string, @Query('skip') skip?: number) {
     try {
       const listMessage = await this.commandBus.execute(
-        new UserViewConversationCommand(user, id, page ?? APPLICATION_CONST.MESSAGE.FIRST_PAGE)
+        new UserViewConversationCommand(user, id, skip ?? APPLICATION_CONST.CONVERSATION.DEFAULT_SKIP)
       )
 
       return this.responseWithSuccess(res, listMessage);

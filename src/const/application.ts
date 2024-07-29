@@ -5,8 +5,9 @@ export const APPLICATION_CONST = {
         CONVERSATION: 'conversation',
     },
     CONVERSATION: {
-        LIMIT_PAGINATE: 20,
+        LIMIT_PAGINATE: 15,
         FIRST_PAGE: 1,
+        DEFAULT_SKIP: 0,
     },
     MESSAGE: {
         FIRST_PAGE: 1,

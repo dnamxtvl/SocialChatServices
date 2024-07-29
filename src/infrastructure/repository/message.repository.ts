@@ -72,14 +72,14 @@ export class MessageRepository extends BaseRepository implements IMessageReposit
     return newMessage.map((message) => this.mappingMessageEntityToModel(message));
   }
 
-  async listMessagePaginate(conversationId: string, page: number): Promise<MessageModel[] | null> {
+  async listMessagePaginate(conversationId: string, skip: number): Promise<MessageModel[] | null> {
     const messages = await this.message
       .find({
         conversation: conversationId,
         type: {$nin: [TypeMessageEnum.NOTIFY, TypeMessageEnum.EMOJI]}
       })
+      .skip(skip)
       .limit(APPLICATION_CONST.MESSAGE.LIMIT_PAGINATE)
-      .skip(APPLICATION_CONST.MESSAGE.LIMIT_PAGINATE * (page - 1))
       .sort({ _id: -1 })
       .exec();
 
