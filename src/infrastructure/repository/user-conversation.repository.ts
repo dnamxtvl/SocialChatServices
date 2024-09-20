@@ -103,14 +103,14 @@ export class UserConversationRepository extends BaseRepository implements IUserC
     await this.userConversation.insertMany(userConversations, { session });
   }
 
-  async listUserConversationPaginate(userId: string, page: number): Promise<UserConversationModel[] | []> {
+  async listUserConversationPaginate(userId: string, skip: number): Promise<UserConversationModel[] | []> {
     const userConversations = await this.userConversation
       .find({
         user_id: userId
       })
       .populate(['last_message', 'conversation'])
       .sort({ latest_active_at: -1 })
-      .skip((page - 1) * APPLICATION_CONST.CONVERSATION.LIMIT_PAGINATE)
+      .skip(skip)
       .limit(APPLICATION_CONST.CONVERSATION.LIMIT_PAGINATE)
       .exec();
 
@@ -127,7 +127,7 @@ export class UserConversationRepository extends BaseRepository implements IUserC
       user_id: model.getUserId(),
       conversation: model.getConversationId(),
       last_message: latestMessageId,
-      latest_active_at: model.getUserId() === userSend.id ? new Date() : model.getLatestActivity(),
+      latest_active_at: new Date(),
       no_unread_message: model.getNoUnredMessage() + 1,
       disabled_notify: model.getDisabledNotify(),
       expired_disabled_notify_at: model.getExpiredDisabledNotifyAt(),

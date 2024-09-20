@@ -4,11 +4,13 @@ import { HydratedDocument } from 'mongoose';
 import { Transform } from 'class-transformer';
 import mongoose from 'mongoose';
 import { Conversation } from './conversation.entity';
+import { FileContent } from 'src/@type/Message';
 
 export enum StatusMessageEnum {
-  UNREAD = 0,
-  SEEN = 1,
-  DELIVERED = 2,
+  SENDING = 0,
+  SENT = 1,
+  SEEN = 2,
+  DELIVERED = 3,
 }
 
 export enum TypeMessageEnum {
@@ -36,13 +38,13 @@ export class Message {
   _id: Types.ObjectId;
 
   @Prop({ required: false, type: Types.Array })
-  content: string | string[];
+  content: string | Array<FileContent> | FileContent;
 
   @Prop({ required: true, enum: TypeMessageEnum })
   type: number;
 
   @Prop({
-    enum: StatusMessageEnum,
+    enum: StatusMessageEnum, default: StatusMessageEnum.SENT,
   })
   status: number;
 

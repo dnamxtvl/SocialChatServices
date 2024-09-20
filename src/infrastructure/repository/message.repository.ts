@@ -18,7 +18,7 @@ export class MessageRepository extends BaseRepository implements IMessageReposit
   async findById(id: string): Promise<MessageModel | null> {
     const message = await this.message
       .findById({
-        id: id,
+        _id: id,
       })
       .exec();
 
@@ -29,7 +29,7 @@ export class MessageRepository extends BaseRepository implements IMessageReposit
     const messages = await this.message
       .findOne({
         conversation: conversationId,
-        createdAt: {
+        created_at: {
           $gt: new Date((new Date()).getTime() - APPLICATION_CONST.MESSAGE.TIME_FIRST_OF_AVG)
         }
       })
@@ -38,7 +38,7 @@ export class MessageRepository extends BaseRepository implements IMessageReposit
     return messages ? false : true;
   }
 
-  async saveMessage(model: MessageModel, session: ClientSession): Promise<MessageModel> {
+  async saveMessage(model: MessageModel, session?: ClientSession): Promise<MessageModel> {
     const message = new this.message({
       type: model.getType(),
       conversation: model.getConversationId(),
@@ -47,8 +47,9 @@ export class MessageRepository extends BaseRepository implements IMessageReposit
       content: model.getContent(),
       user_send_id: model.getUserSendId(),
       parent_id: model.getParentId(),
+      status: StatusMessageEnum.SENT,
     });
-    const newMessage = await message.save({ session });
+    const newMessage = session ? await message.save({ session }) : await message.save();
 
     return this.mappingMessageEntityToModel(newMessage);
   }
@@ -63,7 +64,7 @@ export class MessageRepository extends BaseRepository implements IMessageReposit
         content: model.getContent(),
         user_send_id: model.getUserSendId(),
         parent_id: model.getParentId(),
-        status: StatusMessageEnum.UNREAD
+        status: StatusMessageEnum.SENT
       }
     });
     const newMessage = await this.message.insertMany(messages, { session });
@@ -71,14 +72,14 @@ export class MessageRepository extends BaseRepository implements IMessageReposit
     return newMessage.map((message) => this.mappingMessageEntityToModel(message));
   }
 
-  async listMessagePaginate(conversationId: string, page: number): Promise<MessageModel[] | null> {
+  async listMessagePaginate(conversationId: string, skip: number): Promise<MessageModel[] | null> {
     const messages = await this.message
       .find({
         conversation: conversationId,
         type: {$nin: [TypeMessageEnum.NOTIFY, TypeMessageEnum.EMOJI]}
       })
+      .skip(skip)
       .limit(APPLICATION_CONST.MESSAGE.LIMIT_PAGINATE)
-      .skip(APPLICATION_CONST.MESSAGE.LIMIT_PAGINATE * (page - 1))
       .sort({ _id: -1 })
       .exec();
 

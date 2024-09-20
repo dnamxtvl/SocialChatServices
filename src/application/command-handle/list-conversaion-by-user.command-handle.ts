@@ -10,6 +10,6 @@ export class ListConversationByUserCommandHandle implements ICommandHandler<List
   ) {}
 
   async execute(command: ListConversationByUserCommand): Promise<UserConversationModel[] | []> {
-    return await this.userConversationRepository.listUserConversationPaginate(command.userId, command.page);
+    return await this.userConversationRepository.listUserConversationPaginate(command.userId, command.skip);
   }
 }

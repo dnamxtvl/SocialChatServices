@@ -71,8 +71,8 @@ export const VALIDATION = {
     },
     FILE_UPLOAD: {
         MAX_COUNT: 20,
-        MAX_SIZE: 50 * 1024 * 1024,
-        FILE_TYPE: /jpeg|jpg|png|gif|mp4|avi|webp|mkv|pdf|docx|mp3|zip|xlsx|txt|csv|rar|7z|tar|gz|sql|pptx|txt/,
+        MAX_SIZE: 100 * 1024 * 1024,
+        FILE_TYPE: /jpeg|jpg|png|gif|mp4|mp3|webm|avi|webp|mkv|pdf|docx|mp3|zip|xlsx|txt|csv|rar|7z|tar|gz|sql|pptx|txt/,
     },
     TYPE_MESSAGE: {
         TEXT: 0,

@@ -5,12 +5,15 @@ export const APPLICATION_CONST = {
         CONVERSATION: 'conversation',
     },
     CONVERSATION: {
-        LIMIT_PAGINATE: 20,
+        LIMIT_PAGINATE: 15,
         FIRST_PAGE: 1,
+        DEFAULT_SKIP: 0,
     },
     MESSAGE: {
         FIRST_PAGE: 1,
         TIME_FIRST_OF_AVG: 15 * 60 * 1000,
         LIMIT_PAGINATE: 50,
-    }
+    },
+    AWS_STREAM_CHUNK_SIZE:5242880,
+    AWS_UPLOAD_QUEUE_SIZE:4
 }

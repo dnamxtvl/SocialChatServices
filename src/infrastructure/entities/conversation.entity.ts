@@ -36,6 +36,9 @@ export class Conversation {
   @Prop()
   count_member: number;
 
+  @Prop({ default: null })
+  about: string;
+
   @Prop()
   created_by: string;
 

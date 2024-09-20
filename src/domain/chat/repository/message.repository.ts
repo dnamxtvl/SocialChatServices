@@ -6,9 +6,9 @@ export abstract class IMessageRepository {
 
   isFirstOfAvgTime: (conversationId: string) => Promise<boolean>;
 
-  saveMessage: (model: MessageModel, session: ClientSession) => Promise<MessageModel>;
+  saveMessage: (model: MessageModel, session?: ClientSession) => Promise<MessageModel>;
 
   insertManyMessages: (models: MessageModel[], session: ClientSession) => Promise<MessageModel[]>;
 
-  listMessagePaginate: (conversationId: string, page: number) => Promise<MessageModel[] | null>;
+  listMessagePaginate: (conversationId: string, skip: number) => Promise<MessageModel[] | null>;
 }

@@ -1,5 +1,6 @@
 export const enum StatusMessageEnum {
-    UNREAD = 0,
-    SEEN = 1,
-    DELIVERED = 2,
+    SENDING = 0,
+    SENT = 1,
+    SEEN = 2,
+    DELIVERED = 3,
 }
